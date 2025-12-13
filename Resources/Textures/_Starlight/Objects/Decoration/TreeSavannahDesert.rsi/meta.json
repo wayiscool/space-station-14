@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "license": "CC-BY-SA-3.0",
+    "copyright": "Art by Way,wayiscool,wayiscute, or https://github.com/wayiscool for the SS14 Starlight project",
+    "size": {
+        "x": 128,
+        "y": 96
+    },
+    "states": [
+    {
+        "name": "TreeSavanah01"
+    }
+    ]
+}
