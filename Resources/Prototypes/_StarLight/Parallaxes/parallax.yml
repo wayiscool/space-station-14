@@ -316,8 +316,8 @@
     - texture:
         !type:ImageParallaxTextureSource
         path: "/Textures/_Starlight/Parallaxes/PlanetColonyLarge.png"
-      slowness: 0.9989
-      scale: "0.68, 0.68"
+      slowness: 0.9983
+      scale: "1.35, 1.35"
       controlHomePosition: "320, 150"
       worldHomePosition: "0, 0"
       tiled: false
