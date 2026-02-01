@@ -19,7 +19,7 @@ public sealed partial class LoadoutGroupPrototype : IPrototype, IInheritingProto
     /// <inheritdoc />
     [NeverPushInheritance]
     [AbstractDataField]
-    public bool Abstract { get; private set; }
+    public bool Abstract { get; }
 
     /// <summary>
     /// User-friendly name for the group.

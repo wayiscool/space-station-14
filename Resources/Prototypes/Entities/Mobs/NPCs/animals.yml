@@ -1606,11 +1606,10 @@
         Slash: 5
         Piercing: 4
   - type: Temperature
-    currentTemperature: 310.15
-    specificHeat: 42
-  - type: TemperatureDamage
     heatDamageThreshold: 360
     coldDamageThreshold: 285
+    currentTemperature: 310.15
+    specificHeat: 42
   - type: Sprite
     drawdepth: Mobs
     layers:
@@ -1784,7 +1783,6 @@
   - type: Item
     size: Tiny
     heldPrefix: 0
-  - type: VampireDevourable # Starlight-edit: Vampire Devouring
   - type: Clothing
     quickEquip: false
     sprite: Mobs/Animals/mouse.rsi
@@ -2042,8 +2040,7 @@
     energy: 5
     netsync: false
   - type: RadiationSource
-    intensity: 0.5
-    slope: 0.3
+    intensity: 0.3
   - type: Bloodstream
     bloodReferenceSolution:
       reagents:
@@ -2387,11 +2384,10 @@
     factions:
     - Passive
   - type: Temperature
-    currentTemperature: 310.15
-    specificHeat: 46
-  - type: TemperatureDamage
     heatDamageThreshold: 335
     coldDamageThreshold: 230
+    currentTemperature: 310.15
+    specificHeat: 46
     coldDamage:
       types:
         Cold : 0.05 #per second, scales with temperature & other constants
@@ -3059,13 +3055,7 @@
       Dead: CorgiDead
   - type: Blindable # why is this not base?
   - type: ThermalRegulator # Lower radiated heat, Corgis are smaller so their body surface area is also smaller.
-    metabolismHeat: 400 # half of human's
     radiatedHeat: 35 # This affects them reallistically only when dead in a spaced room, makes the cold damage scale slower.
-    implicitHeatRegulation: 250 # Add implicit heat regulation because they lacked it for some reason
-    sweatHeatRegulation: 500 # Allow corgis to sweat, i dont know if dogs sweat but i am not implementing a different way of regulation just for them
-    shiveringHeatRegulation: 500 # Allow corgis to shiver to warm up
-    normalBodyTemperature: 310.15 # Same as human
-    thermalRegulationTemperatureThreshold: 2 # Same as human
   # Starlight End
 
 - type: entity
@@ -3160,14 +3150,13 @@
     damageContainer: BiologicalMetaphysical
     damageModifierSet: Infernal
   - type: Temperature
-    currentTemperature: 310.15
-    specificHeat: 42
-  - type: TemperatureDamage
     heatDamageThreshold: 4000 #They come from hell, so..
     coldDamageThreshold: 260
+    currentTemperature: 310.15
     coldDamage:
       types:
         Cold : 1 #per second, scales with temperature & other constants
+    specificHeat: 42
     heatDamage:
       types:
         Heat : 1 #per second, scales with temperature & other constants
@@ -3379,7 +3368,6 @@
       Dead:
         Base: spacecat_dead
   - type: Temperature
-  - type: TemperatureDamage
     heatDamageThreshold: 423
     coldDamageThreshold: 0
   - type: Tag

@@ -12,7 +12,7 @@
 
 let
   dependencies = with pkgs; [
-    dotnet-sdk_10
+    dotnetCorePackages.sdk_9_0
     icu
     glfw
     libGL

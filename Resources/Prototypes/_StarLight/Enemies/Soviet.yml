@@ -121,7 +121,7 @@
         - ReagentId: Vodka
           Quantity: 300
   - type: CombatMode
-  - type: TemperatureDamage
+  - type: Temperature
     heatDamageThreshold: 500
     coldDamageThreshold: 0
   - type: MeleeWeapon

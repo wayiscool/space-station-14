@@ -161,8 +161,7 @@
   tier: 2
   cost: 5000
   recipeUnlocks:
-  - BorgModuleAdvancedTopical
-  - AdvancedJetInjector
+  - BorgModuleAdvancedChemical
 
 - type: technology
   id: MedicalCyberLimbsTech

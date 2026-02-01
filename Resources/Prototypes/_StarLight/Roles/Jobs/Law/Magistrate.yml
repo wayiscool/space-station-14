@@ -62,5 +62,5 @@
     head: ClothingHeadHatPwig
     eyes: ClothingEyesGlassesSecurity
     outerClothing: ClothingOuterRobesJudge
-    misc: ClothingNeckLawyerbadge # Starlight change slot to misc.
+    neck: ClothingNeckLawyerbadge
     gloves: ClothingHandsGlovesColorWhite

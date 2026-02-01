@@ -133,25 +133,26 @@ public sealed class ThrusterSystem : EntitySystem
 
     }
 
-    // Starlight-note - this method is now unreachable, as we've disabled the only callsite into it.
-    private void OnActivateThruster(EntityUid uid, ThrusterComponent component, ActivateInWorldEvent args)
-    {
-        if (args.Handled || !args.Complex || !component.CanToggle)
-            return;
+    // region Starlight; no more toggling thrusters
+    // private void OnActivateThruster(EntityUid uid, ThrusterComponent component, ActivateInWorldEvent args)
+    // {
+    //     if (args.Handled || !args.Complex)
+    //         return;
 
-        component.Enabled ^= true;
+    //     component.Enabled ^= true;
 
-        if (!component.Enabled)
-        {
-            DisableThruster(uid, component);
-            args.Handled = true;
-        }
-        else if (CanEnable(uid, component))
-        {
-            EnableThruster(uid, component);
-            args.Handled = true;
-        }
-    }
+    //     if (!component.Enabled)
+    //     {
+    //         DisableThruster(uid, component);
+    //         args.Handled = true;
+    //     }
+    //     else if (CanEnable(uid, component))
+    //     {
+    //         EnableThruster(uid, component);
+    //         args.Handled = true;
+    //     }
+    // }
+    // end region Starlight
 
     /// <summary>
     /// If the thruster rotates change the direction where the linear thrust is applied

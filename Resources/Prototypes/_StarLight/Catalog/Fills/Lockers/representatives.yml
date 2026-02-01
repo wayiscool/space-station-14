@@ -24,8 +24,6 @@
         - id: FaxMachineFlatpack
         - id: PlushieEmmie
         - id: ClothingOuterHardsuitNtrep
-        - !type:NestedSelector
-          tableId: CorporateDocumentTable
   
 - type: entity
   id: LockerRepresentativeFilledBluespaced
@@ -61,8 +59,6 @@
         - id: BoxFolderNanoTrasenClipboard
         - id: PrinterDocFlatpack
         - id: FaxMachineFlatpack
-        - !type:NestedSelector
-          tableId: SecureDocumentTable
 
 - type: entity
   id: LockerMagistrateFilledBluespaced
@@ -95,8 +91,6 @@
         - id: LuxuryPen
         - id: BoxFolderNanoTrasenClipboard
         - id: BriefcaseBrown # Empty
-        - !type:NestedSelector
-          tableId: CriminalDocumentTable
 
 - type: entity
   id: LockerBSOFilled
@@ -126,8 +120,7 @@
         - id: ClothingNeckCloakBsoElite
         - id: ClothingNeckCloakBsoElite
         - id: RadioHandheldSecurity
-        - id: ClothingUniformJumpsuitBlueShieldShirt
-        - id: ClothingUniformJumpskirtBlueShieldSkirt
+        - id: ClothingUniformJumpsuitBlueShieldCaptain
         - id: ClothingOuterCoatBlueShield
         - id: ClothingNeckCloakBsoCape
         - id: RubberStampBSO

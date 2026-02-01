@@ -157,7 +157,6 @@
     - id: MedkitOxygenFilled
     - id: HolofanProjector
     - id: RCD
-    - id: RPD # Starlight: RPD
     - id: RCDAmmo
     - id: AirGrenade
     - id: trayScanner # Starlight: Add t-ray scanner to atmos lockers

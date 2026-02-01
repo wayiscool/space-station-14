@@ -24,7 +24,7 @@
     - type: HTN
       rootTask:
         task: SlimeMainCompound
-    - type: TemperatureDamage
+    - type: Temperature
       coldDamage:
         types:
           Cold: 10.0

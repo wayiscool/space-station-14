@@ -115,8 +115,6 @@
   - FauxTileAstroSnow
   - FauxTileAstroAsteroidSand
   - FauxTileDesertAstroSand
-  - FauxTileAstroIronsand
-  - FauxTileAstroIronsandBorderless
   radioChannels:
   - Service
 
@@ -146,8 +144,7 @@
 #  tier: 2
 #  cost: 5000
 #  recipeUnlocks:
-#  - BorgModuleAdvancedTopical
-#  - AdvancedJetInjector
+#  - BorgModuleAdvancedChemical
 
 - type: technology
   id: AdvancedCleaning

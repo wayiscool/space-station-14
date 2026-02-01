@@ -9,13 +9,11 @@ using Content.Shared.Emag.Systems;
 using Content.Shared.GameTicking;
 using Content.Shared.Mind;
 using Content.Shared.Mind.Components;
-using Content.Shared.Popups; //Starlight
 using Content.Shared.Radio.Components;
 using Content.Shared.Roles;
 using Content.Shared.Roles.Components;
 using Content.Shared.Silicons.Laws;
 using Content.Shared.Silicons.Laws.Components;
-using Content.Shared.Tag; //Starlight
 using Robust.Server.GameObjects;
 using Robust.Shared.Audio;
 using Robust.Shared.Containers;
@@ -36,8 +34,6 @@ public sealed class SiliconLawSystem : SharedSiliconLawSystem
     [Dependency] private readonly UserInterfaceSystem _userInterface = default!;
     [Dependency] private readonly EmagSystem _emag = default!;
     [Dependency] private readonly IEntityManager _entMan = default!; // Starlight
-    [Dependency] private readonly TagSystem _tag = default!; // Starlight
-    [Dependency] private readonly SharedPopupSystem _popup = default!; // Starlight
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -55,7 +51,6 @@ public sealed class SiliconLawSystem : SharedSiliconLawSystem
         SubscribeLocalEvent<SiliconLawProviderComponent, MindAddedMessage>(OnLawProviderMindAdded);
         SubscribeLocalEvent<SiliconLawProviderComponent, MindRemovedMessage>(OnLawProviderMindRemoved);
         SubscribeLocalEvent<SiliconLawProviderComponent, SiliconEmaggedEvent>(OnEmagLawsAdded);
-        SubscribeLocalEvent<SiliconLawProviderComponent, GotEmaggedEvent>(OnGotEmagged); //Starlight
     }
 
     private void OnMapInit(EntityUid uid, SiliconLawBoundComponent component, MapInitEvent args)
@@ -112,9 +107,8 @@ public sealed class SiliconLawSystem : SharedSiliconLawSystem
     {
         TryComp(uid, out IntrinsicRadioTransmitterComponent? intrinsicRadio);
         var radioChannels = intrinsicRadio?.Channels;
-        var customRadioChannels = intrinsicRadio?.CustomChannels; // Starlight edit
 
-        var state = new SiliconLawBuiState(GetLaws(uid).Laws, radioChannels, customRadioChannels); // Starlight edit
+        var state = new SiliconLawBuiState(GetLaws(uid).Laws, radioChannels);
         _userInterface.SetUiState(args.Entity, SiliconLawsUiKey.Key, state);
     }
 
@@ -171,12 +165,10 @@ public sealed class SiliconLawSystem : SharedSiliconLawSystem
             if (TryComp(uid, out ActiveRadioComponent? activeRadio))
             {
                 activeRadio.Channels.UnionWith(emag.ChannelAdd);
-                Dirty(uid, activeRadio); // Starlight
             }
             if (TryComp(uid, out IntrinsicRadioTransmitterComponent? transmitter))
             {
                 transmitter.Channels.UnionWith(emag.ChannelAdd);
-                Dirty(uid, transmitter); // Starlight
             }
             var lawset = emag.Lawset;
             if (lawset != null)
@@ -347,27 +339,8 @@ public sealed class SiliconLawSystem : SharedSiliconLawSystem
                 _entMan.AddComponents(update, provider.Components);
         }
     }
-/// STARLIGHT START
-    private void OnGotEmagged(Entity<SiliconLawProviderComponent> ent, ref GotEmaggedEvent args)
-    {
-        if (!_emag.CompareFlag(args.Type, EmagType.Interaction))
-            return;
-
-        if (args.EmagComponent == null)
-            return;
-        
-        if (!_tag.HasTag(args.EmagComponent.Owner, "FreeMag"))
-                return;
-
-        ent.Comp.Lawset = GetLawset("FreeLawset");
-
-        _popup.PopupEntity(Loc.GetString("lawboard-emag-popup"), ent);
-        
-        args.Repeatable = true;
-        args.Handled = true;
-    }
 }
-/// STARLIGHT END
+
 [ToolshedCommand, AdminCommand(AdminFlags.Admin)]
 public sealed class LawsCommand : ToolshedCommand
 {

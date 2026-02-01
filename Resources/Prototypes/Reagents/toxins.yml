@@ -6,7 +6,7 @@
   flavor: bitter
   color: "#cf3600"
   physicalDesc: reagent-physical-desc-opaque
-  contrabandSeverity: Major # Starlight Minor -> Major
+  contrabandSeverity: Minor
   plantMetabolism:
   - !type:PlantAdjustToxins
     amount: 10
@@ -93,7 +93,6 @@
   flavor: bitter
   color: "#acc91a"
   physicalDesc: reagent-physical-desc-putrid
-  contrabandSeverity: Minor # Starlight None -> Minor
   metabolisms:
     Poison:
       effects:
@@ -180,7 +179,6 @@
   flavor: sour
   color: "#48b3b8"
   physicalDesc: reagent-physical-desc-ferrous
-  contrabandSeverity: Major # Starlight None -> Major
   metabolisms:
     Drink:
       effects:
@@ -199,7 +197,7 @@
   group: Toxins
   desc: reagent-desc-fluorosulfuric-acid
   physicalDesc: reagent-physical-desc-strong-smelling
-  contrabandSeverity: Major # Starlight Minor -> Major
+  contrabandSeverity: Minor
   flavor: acid
   color: "#5050ff"
   boilingPoint: 165
@@ -347,7 +345,6 @@
   group: Toxins
   desc: reagent-desc-mindbreaker-toxin
   physicalDesc: reagent-physical-desc-opaque
-  contrabandSeverity: Minor # Starlight None -> Minor
   flavor: bitter
   color: "#77b58e"
   plantMetabolism:
@@ -662,8 +659,6 @@
   plantMetabolism:
   - !type:PlantMutateChemicals
     randomPickBotanyReagent: EvilRandomFillSolution
-  - !type:PlantAdjustToxins
-    amount: 10
   metabolisms:
     Poison:
       effects:
@@ -701,11 +696,8 @@
   group: Toxins
   desc: reagent-desc-lipolicide
   physicalDesc: reagent-physical-desc-strong-smelling
-  # Starlight Edits
-  contrabandSeverity: Major
-  # allowedDepartments:
-  # - Medical
-  # Starlight End
+  allowedDepartments:
+  - Medical
   flavor: mothballs #why does weightloss juice taste like mothballs
   color: "#F0FFF0"
   metabolisms:
@@ -731,7 +723,6 @@
   flavor: sweet
   color: "#00b408"
   physicalDesc: reagent-physical-desc-nondescript
-  contrabandSeverity: Major # Starlight None -> Major
   metabolisms:
     Poison:
       metabolismRate: 0.2 # Slower metabolism so it can build up over time for slowdown
