@@ -27,7 +27,7 @@ public sealed partial class StationJobsSystem : EntitySystem
     [Dependency] private readonly IConfigurationManager _configurationManager = default!;
     [Dependency] private readonly IPlayerManager _player = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly GameTicker _gameTicker = default!;
+    //[Dependency] private readonly GameTicker _gameTicker = default!; // Starlight-removed - we dropped the one use of this
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -500,6 +500,7 @@ public sealed partial class StationJobsSystem : EntitySystem
 
         while (query.MoveNext(out var station, out var comp))
         {
+            if (comp.SetupAvailableJobs.Count == 0) continue; // Starlight: no jobs were created in the first place, don't show this entry.
             var netStation = GetNetEntity(station);
             var list = comp.JobList.ToDictionary(x => x.Key, x => x.Value);
             jobs.Add(netStation, list);

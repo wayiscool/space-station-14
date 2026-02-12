@@ -55,6 +55,7 @@
   - SurveillanceWirelessCameraMonitorCircuitboard
   - TelecomServerCircuitboard
   - HolopadMachineCircuitboard
+  - BladeServerRackMachineCircuitboard # Moffstation - Blade Server Rack constructible
   radioChannels:
   - Service
 
@@ -89,8 +90,10 @@
   - FatExtractorMachineCircuitboard
   - BiofabricatorMachineCircuitboard
   - BiomassReclaimerMachineCircuitboard
+  - SlopDispenserMachineCircuitboard #SL
   radioChannels:
   - Service
+  - Medical # starlight
 
 # Tier 2
 
@@ -107,11 +110,45 @@
   - FauxTileAstroGrass
   - FauxTileMowedAstroGrass
   - FauxTileJungleAstroGrass
+  - FauxTileDarkAstroGrass
+  - FauxTileLightAstroGrass
   - FauxTileAstroIce
   - FauxTileAstroSnow
   - FauxTileAstroAsteroidSand
+  - FauxTileDesertAstroSand
+  - FauxTileAstroIronsand
+  - FauxTileAstroIronsandBorderless
   radioChannels:
   - Service
+
+# Starlight - moved from civilian to medical
+#- type: technology
+#  id: BiochemicalStasis
+#  name: research-technology-biochemical-stasis
+#  icon:
+#    sprite: Structures/Machines/stasis_bed.rsi
+#    state: icon
+#  discipline: CivilianServices
+#  tier: 2
+#  cost: 7500
+#  recipeUnlocks:
+#  - StasisBedMachineCircuitboard
+#  - CryoPodMachineCircuitboard
+#  - CryostasisBeaker
+#  - SyringeCryostasis
+#
+#- type: technology # Merge with other T2 medical research if possible!
+#  id: MechanizedTreatment
+#  name: research-technology-mechanized-treatment
+#  icon:
+#    sprite: Mobs/Silicon/chassis.rsi
+#    state: medical
+#  discipline: CivilianServices
+#  tier: 2
+#  cost: 5000
+#  recipeUnlocks:
+#  - BorgModuleAdvancedTopical
+#  - AdvancedJetInjector
 
 - type: technology
   id: AdvancedCleaning
@@ -126,6 +163,7 @@
   - AdvMopItem
   - MegaSprayBottle
   - BorgModuleAdvancedCleaning
+  - Hydra # Starlight
   radioChannels:
   - Service
 
@@ -148,6 +186,8 @@
   - HonkerPeripheralsElectronics
   - HonkerTargetingElectronics
   - MechEquipmentHorn
+  technologyPrerequisites:
+  - RipleyAPLU # starlight
 
 - type: technology
   id: HONKWeapons
@@ -161,6 +201,8 @@
   recipeUnlocks:
   - MechEquipmentHonkerBananaMortar
   - MechEquipmentHonkerMousetrapMortar
+  technologyPrerequisites:
+  - HONKMech # starlight
 
 - type: technology
   id: AdvancedSpray
@@ -216,6 +258,10 @@
   tier: 3
   cost: 10000
   recipeUnlocks:
-  - ClothingShoesBootsSpeed
+  # Starlight edit start - Replace speed boots with speed legs
+  # - ClothingShoesBootsSpeed
+  - LeftLegCyberSpeed
+  - RightLegCyberSpeed
+  # Starlight edit end
   radioChannels:
   - Service

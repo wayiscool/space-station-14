@@ -105,11 +105,19 @@
       - !type:KeyExistsPrecondition
         key: Target
       tasks:
+        # Starlight-start entities jump in combat
+        - !type:HTNPrimitiveTask
+          operator: !type:JumpOperator
+            shutdownState: PlanFinished
+            removeKeyOnFinish: false
+            targetKey: TargetCoordinates
+        # Starlight-end
         - !type:HTNPrimitiveTask
           operator: !type:MoveToOperator
             shutdownState: PlanFinished
             pathfindInPlanning: true
             removeKeyOnFinish: false
+            brakeMaxVelocity: null # Starlight: Don't try to brake
             targetKey: TargetCoordinates
             pathfindKey: TargetPathfind
             rangeKey: MeleeRange
@@ -158,6 +166,7 @@
             shutdownState: PlanFinished
             pathfindInPlanning: true
             removeKeyOnFinish: false
+            brakeMaxVelocity: null # Starlight: Don't try to brake
             targetKey: TargetCoordinates
             pathfindKey: TargetPathfind
             rangeKey: MeleeRange
@@ -178,3 +187,13 @@
               id: MeleeService
               proto: OrderedTargets
               key: Target
+
+- type: htnCompound
+  id: DoNotEscapeCompound
+  branches:
+  - preconditions:
+    - !type:InFriendlyContainerPrecondition
+      isInFriendlyContainer: true
+    tasks:
+    - !type:HTNPrimitiveTask
+      operator: !type:NoOperator

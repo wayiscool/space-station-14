@@ -39,15 +39,19 @@
   name: Medical
 
 - type: storeCategory
-  id: SLFahsionSkirt
+  id: SLFashionSkirt
   name: Luxury dresses 
 
 - type: storeCategory
-  id: SLFahsionSuit
+  id: SLFashionSuit
   name: Elegant suits
 
 - type: storeCategory
-  id: SLFahsionOther
+  id: SLFashionHead
+  name: Hats & Helmets
+
+- type: storeCategory
+  id: SLFashionOther
   name: Other
 
 # shuttle build uplink
@@ -113,7 +117,20 @@
 
 - type: storeCategory
   id: SalvageMercenaryEquipment
-  name: Mercenary
+  name: Scrapper
+
+- type: storeCategory
+  id: SalvageCybernetics
+  name: Cybernetics
+
+# mining
+- type: storeCategory
+  id: MiningEquipment
+  name: Equipment
+
+- type: storeCategory
+  id: MiningConsumeables
+  name: Consumeables
 
 # USSP
 
@@ -144,3 +161,9 @@
 - type: storeCategory
   id: RevUplinkPointless
   name: Glory
+
+# Elf Cantrips
+
+- type: storeCategory
+  id: CantripsStandard
+  name: store-category-cantrips-standard

@@ -7,6 +7,8 @@
   - type: Tag
     tags:
       - BrigmedicBeltEquip
+  - type: Item
+    heldPrefix: scanner
   - type: Sprite
     sprite: _Starlight/Objects/Specific/Medical/handheld_brigmedic_crewmonitor.rsi
     state: scanner
@@ -15,13 +17,18 @@
   - type: UserInterface
     interfaces:
       enum.CrewMonitoringUIKey.Key:
-        type: BrigmedicCrewMonitoringBoundUserInterface
+        type: CrewMonitoringBoundUserInterface
   - type: CrewMonitoringConsole
+  - type: CrewMonitoringFilter
+    shownDepartments:
+    - Security
   - type: DeviceNetwork
     deviceNetId: Wireless
     receiveFrequencyId: CrewMonitor
   - type: WirelessNetworkConnection
     range: 500
+  - type: StealTarget
+    stealGroup: CrewMonitorCollection
 
 - type: entity
   id: HandheldBrigmedicCrewMonitorEmpty

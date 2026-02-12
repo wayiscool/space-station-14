@@ -1,12 +1,12 @@
 - type: entity
-  id: BaseCycloriteOrganUnGibbable
+  id: BaseCycloriteOrgan
   parent: BaseItem
   abstract: true
   components:
   - type: Sprite
     sprite: _Starlight/Mobs/Species/Cyclorite/organs.rsi
   - type: Organ
-  - type: Food
+  - type: Edible
   - type: Extractable
     grindableSolutionName: organ
   - type: SolutionContainerManager
@@ -28,15 +28,8 @@
       - Meat
 
 - type: entity
-  id: BaseCycloriteOrgan
-  parent: BaseCycloriteOrganUnGibbable
-  abstract: true
-  components:
-  - type: Gibbable
-
-- type: entity
   id: OrganCycloriteBrain
-  parent: [BaseOrganBrain, BaseCycloriteOrganUnGibbable]
+  parent: [BaseOrganBrain, BaseCycloriteOrgan]
   name: brain
   description: "The source of incredible, unending intelligence. Honk."
   components:
@@ -47,7 +40,7 @@
   id: OrganCycloriteEye
   parent: [BaseCycloriteOrgan, BaseOrganEyes]
   name: eye
-  description: "I see you!"
+  description: "Cyclorites see the world slightly differently."
   components:
   - type: Sprite
     layers:
@@ -58,7 +51,8 @@
     - type: NightVision
   - type: OrganVisualization
     layer: Eyes
-    prototype: MobCycloriteEyes
+    prototypes:
+      Default: MobCycloriteEyes
 
 - type: entity
   id: OrganCycloriteTongue
@@ -82,7 +76,7 @@
   id: OrganCycloriteLungs
   parent: [BaseCycloriteOrgan, BaseOrganLungs]
   name: lungs
-  description: "Filters oxygen from an atmosphere, which is then sent into the bloodstream to be used as an electron carrier."
+  description: "Cyclorite lungs filter nitrogen from the atmosphere to breathe."
   components:
   - type: Sprite
     layers:
@@ -126,7 +120,7 @@
   # You're technically 'immune to poison' without a heart, but.. uhh, you'll have bigger problems on your hands.
   - type: Metabolizer
     maxReagents: 2
-    metabolizerTypes: [ Slime ]
+    metabolizerTypes: [ Cyclorite ]
     groups:
     - id: Medicine
     - id: Poison
@@ -174,7 +168,6 @@
     metabolizerTypes: [ Slime ]
     groups:
     - id: Alcohol
-      rateModifier: 0.2 # removes alcohol very slowly along with the stomach removing it as a drink
 
 - type: entity
   id: OrganCycloriteKidneys

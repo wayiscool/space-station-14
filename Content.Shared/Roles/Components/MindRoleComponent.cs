@@ -2,6 +2,10 @@ using Content.Shared.Mind;
 using Robust.Shared.GameStates;
 using Robust.Shared.Prototypes;
 
+#region Starlight
+using Content.Shared.Players.PlayTimeTracking;
+#endregion Starlight
+
 namespace Content.Shared.Roles.Components;
 
 /// <summary>
@@ -36,14 +40,6 @@ public sealed partial class MindRoleComponent : BaseMindRoleComponent
     public bool ExclusiveAntag;
 
     /// <summary>
-    /// The Mind that this role belongs to.
-    /// </summary>
-    /// <remarks>
-    /// TODO: Make this a datafield. Also components should not store other components.
-    /// </remarks>
-    public Entity<MindComponent> Mind;
-
-    /// <summary>
     /// The Antagonist prototype of this role.
     /// </summary>
     [DataField]
@@ -60,6 +56,14 @@ public sealed partial class MindRoleComponent : BaseMindRoleComponent
     /// </summary>
     [DataField]
     public int SortWeight;
+
+    // Starlight start
+    /// <summary>
+    /// Playtime tracker that should be incremented by this mindrole, if no antag or job one is present.
+    /// </summary>
+    [DataField]
+    public ProtoId<PlayTimeTrackerPrototype>? FallbackPlayTimeTracker = default!;
+    // Starlight end
 }
 
 // Why does this base component actually exist? It does make auto-categorization easy, but before that it was useless?

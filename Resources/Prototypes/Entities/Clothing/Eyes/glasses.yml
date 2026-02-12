@@ -69,6 +69,7 @@
     tags:
     - PetWearable
     - WhitelistChameleon
+    - Meson
 
 - type: entity
   parent: ClothingEyesBase
@@ -181,6 +182,8 @@
   - type: Construction
     graph: GlassesSecHUD
     node: glassesSec
+  - type: StealTarget # Starlight
+    stealGroup: MiscGlassesCollection # Starlight
   - type: Tag
     tags:
     - HamsterWearable
@@ -214,9 +217,11 @@
   - type: IdentityBlocker
     coverage: EYES
   - type: ShowJobIcons
+  - type: StealTarget # Starlight
+    stealGroup: RareGlassesCollection # Starlight
 
 - type: entity
-  parent: [ ClothingEyesBase, BaseSalvageContraband ] #Starlight salvContra
+  parent: ClothingEyesBase
   id: ClothingEyesGlassesMercenary
   name: mercenary glasses
   description: Glasses made for combat, to protect the eyes from bright blinding flashes.
@@ -269,7 +274,7 @@
       - WhitelistChameleon
 
 - type: entity
-  parent: [ClothingEyesBase, BaseMajorContraband]
+  parent: [ClothingEyesBase, BaseHighlyIllegalContraband]
   id: ClothingEyesVisorNinja
   name: ninja visor
   description: An advanced visor protecting a ninja's eyes from flashing lights.
@@ -296,6 +301,8 @@
   - type: FlashImmunity
   - type: EyeProtection
     protectionTime: 5
+  - type: StealTarget # Starlight
+    stealGroup: MiscGlassesCollection # Starlight
   - type: NoirOverlay
   - type: Tag
     tags:

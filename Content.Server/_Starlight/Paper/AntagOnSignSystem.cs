@@ -6,6 +6,7 @@ using Content.Shared.Paper;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
+using Content.Shared.Whitelist; // Starlight
 
 namespace Content.Server._Starlight.Paper;
 
@@ -16,6 +17,7 @@ public sealed class AntagOnSignSystem : EntitySystem
     [Dependency] private readonly GameTicker _gameTicker = default!;
     [Dependency] private readonly IComponentFactory _componentFactory = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
+    [Dependency] private readonly EntityWhitelistSystem _whitelist = default!;
     private ISawmill _sawmill = default!;
 
 
@@ -26,10 +28,10 @@ public sealed class AntagOnSignSystem : EntitySystem
         base.Initialize();
         _sawmill = Logger.GetSawmill(this.SawmillName);
         SubscribeLocalEvent<AntagOnSignComponent, PaperSignedEvent>(OnPaperSigned, before: [typeof(ObjectiveOnSignSystem)]);
-        SubscribeLocalEvent<AntagOnSignComponent, ComponentInit>(OnComponentInit);
+        SubscribeLocalEvent<AntagOnSignComponent, MapInitEvent>(OnMapInit);
     }
 
-    private void OnComponentInit(EntityUid uid, AntagOnSignComponent comp, ComponentInit init)
+    private void OnMapInit(EntityUid uid, AntagOnSignComponent comp, ref MapInitEvent init)
     {
         if (comp.KeepFaxable) 
             return;
@@ -38,6 +40,7 @@ public sealed class AntagOnSignSystem : EntitySystem
 
     private void OnPaperSigned(EntityUid uid, AntagOnSignComponent component, PaperSignedEvent args)
     {
+        if (_whitelist.IsWhitelistPass(component.Blacklist, args.Signer)) return; // Starlight - prevent blacklisted entities from becoming antag
         if (component.ChargesRemaining <= 0)
             return;
         var signer = args.Signer;

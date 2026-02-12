@@ -1,8 +1,9 @@
 - type: language
   id: Sylvan
   icon: LanguageIconPlant
+  chatPrefix: syl
   speech:
-    color: "#804000"
+    color: "#897968"
   obfuscation:
     !type:SyllableObfuscation
     minSyllables: 1

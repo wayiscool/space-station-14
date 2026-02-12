@@ -1,7 +1,9 @@
+language-chat-confirmation = Message will send in {$lang}.
+
 language-Universal-name = Universal
 language-Universal-description = What are you?
 
-language-GalacticCommon-name = Galactic common
+language-GalacticCommon-name = Galactic Common
 language-GalacticCommon-description = The common galactic tongue, engineered for cross-species communication. Every spacer there is knows this!
 
 language-Sign-name = Galactic Sign Language
@@ -40,6 +42,9 @@ language-Ancestor-description = The proto-language primarily utilized by monkeys
 language-Mouse-name = Mouse
 language-Mouse-description = Squeeek!
 
+language-Mothroach-name = Mothroach
+language-Mothroach-description = chitters!
+
 language-Scratch-name = Scratch
 language-Scratch-description = A simplified, written dialect of the Avali and Resomi. Scratch is the galactic standard language model for the Illuminate. The origins of this language come from the pre-space age nomadic tribes, whose carvings and etches into ice caves hold a striking similarity to the modern Scratch.
 
@@ -66,7 +71,7 @@ language-Carptongue-name = Carptongue
 language-Carptongue-description = Various fishy sounds that might make sense to space carps.
 
 language-Xeno-name = Xeno
-language-Xeno-description = The common tongue of the xenos
+language-Xeno-description = The common tongue of the xenos.
 
 language-Cat-name = Cat
 language-Cat-description = Meow
@@ -85,3 +90,24 @@ language-Duck-description = Quack!
 
 language-Pig-name = Pig
 language-Pig-description = Oink!
+
+language-Bat-name = Bat
+language-Bat-description = Eek!
+
+language-Thaveyan-name = Thaveyan
+language-Thaveyan-description = A lyrical sing-songy language common to the Thaven which reminds others of listening to the waves.
+
+language-Darktongue-name = Darktongue
+language-Darktongue-description = Sounds a bit like clearing your throat, or perhaps slitting someone else's.
+
+language-Grumbakul-name = Grumbakul
+language-Grumbakul-description = A terse, sturdy language fit for drink and industry.
+
+language-Classical-name = Classical
+language-Classical-description = Once upon a time, everyone spoke this language. They were mostly quite bad at it.
+
+language-Aielic-name = Aielic
+language-Aielic-description = The musical language of a nearly-extinct species known for its beautiful literature, pointy ears, once-vast empire.
+
+language-Lagomorphian-name = Laguine
+language-Lagomorphian-description = A very lynarxical tongue, developed as an integration language for the Lagomorph's differing vocal structure.

@@ -49,9 +49,14 @@ public abstract class SharedJobSystem : EntitySystem
     /// </summary>
     /// <param name="trackerProto"></param>
     /// <returns></returns>
-    public string GetJobPrototype(string trackerProto)
+    public string? GetJobPrototype(string trackerProto) // Starlight - make return value nullable
     {
         DebugTools.Assert(_prototypes.HasIndex<PlayTimeTrackerPrototype>(trackerProto));
+        // Starlight start
+        // We have non-job playtimetrackers
+        if (!_inverseTrackerLookup.ContainsKey(trackerProto))
+            return null;
+        // Starlight end
         return _inverseTrackerLookup[trackerProto];
     }
 
@@ -161,7 +166,7 @@ public abstract class SharedJobSystem : EntitySystem
         prototype = null;
         MindTryGetJobId(mindId, out var protoId);
 
-        return _prototypes.TryIndex(protoId, out prototype) || prototype is not null;
+        return _prototypes.Resolve(protoId, out prototype) || prototype is not null;
     }
 
     public bool MindTryGetJobId(

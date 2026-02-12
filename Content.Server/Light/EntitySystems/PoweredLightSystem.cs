@@ -1,12 +1,15 @@
-using Content.Server.Administration.Logs;
-using Content.Server.AlertLevel;
-using Content.Server.DeviceLinking.Systems;
-using Content.Server.DeviceNetwork;
-using Content.Server.DeviceNetwork.Systems;
-using Content.Server.Emp;
 using Content.Server.Ghost;
 using Content.Shared.Light.Components;
 using Content.Shared.Light.EntitySystems;
+
+#region Starlight
+using Content.Server.Administration.Logs;
+using Content.Server.AlertLevel;
+using Content.Server.DeviceLinking.Systems;
+using Content.Shared.Station.Components; // Starlight
+using Content.Server.DeviceNetwork;
+using Content.Server.DeviceNetwork.Systems;
+#endregion Starlight
 
 namespace Content.Server.Light.EntitySystems;
 
@@ -21,8 +24,6 @@ public sealed class PoweredLightSystem : SharedPoweredLightSystem
         SubscribeLocalEvent<PoweredLightComponent, MapInitEvent>(OnMapInit);
 
         SubscribeLocalEvent<PoweredLightComponent, GhostBooEvent>(OnGhostBoo);
-
-        SubscribeLocalEvent<PoweredLightComponent, EmpPulseEvent>(OnEmpPulse);
         SubscribeLocalEvent<AlertLevelChangedEvent>(OnAlertLevelChanged); //Starlight
     }
 
@@ -62,18 +63,14 @@ public sealed class PoweredLightSystem : SharedPoweredLightSystem
         UpdateLight(uid, light);
     }
 
-    private void OnEmpPulse(EntityUid uid, PoweredLightComponent component, ref EmpPulseEvent args)
-    {
-        if (TryDestroyBulb(uid, component))
-            args.Affected = true;
-    }
-    
     #region Starlight
     private void OnAlertLevelChanged(AlertLevelChangedEvent args)
     {
         var query = EntityQueryEnumerator<PoweredLightComponent>();
         while (query.MoveNext(out var uid, out var light))
         {
+            if (!TryComp<StationMemberComponent>(Transform(uid).GridUid, out var stationMember)) continue;
+            if (stationMember.Station != args.Station) continue;
             if (args.AlertLevel == "delta" || args.AlertLevel == "epsilon")
                 SetState(uid, false, light);
             else

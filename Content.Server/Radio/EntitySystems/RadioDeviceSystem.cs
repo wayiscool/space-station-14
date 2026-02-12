@@ -3,24 +3,27 @@ using Content.Server.Chat.Systems;
 using Content.Server.Interaction;
 using Content.Server.Popups;
 using Content.Server.Power.EntitySystems;
-using Content.Server.Radio.Components;
+using Content.Shared.Chat;
 using Content.Shared.Examine;
 using Content.Shared.Interaction;
 using Content.Shared.Power;
 using Content.Shared.Radio;
+using Content.Shared.Radio.Components;
+using Content.Shared.Radio.EntitySystems;
 using Content.Shared.Speech;
 using Content.Shared.Speech.Components;
-using Content.Shared.Chat;
-using Content.Shared.Radio.Components;
 using Robust.Shared.Prototypes;
-using Content.Server._Starlight.Language; // Starlight
+
+#region Starlight
+using Content.Server._Starlight.Language;
+#endregion Starlight
 
 namespace Content.Server.Radio.EntitySystems;
 
 /// <summary>
 ///     This system handles radio speakers and microphones (which together form a hand-held radio).
 /// </summary>
-public sealed class RadioDeviceSystem : EntitySystem
+public sealed class RadioDeviceSystem : SharedRadioDeviceSystem
 {
     [Dependency] private readonly IPrototypeManager _protoMan = default!;
     [Dependency] private readonly PopupSystem _popup = default!;
@@ -28,10 +31,9 @@ public sealed class RadioDeviceSystem : EntitySystem
     [Dependency] private readonly RadioSystem _radio = default!;
     [Dependency] private readonly InteractionSystem _interaction = default!;
     [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
-    [Dependency] private readonly LanguageSystem _language = default!; // Starlight
 
     // Used to prevent a shitter from using a bunch of radios to spam chat.
-    private HashSet<(string, EntityUid, RadioChannelPrototype)> _recentlySent = new();
+    private HashSet<(string, EntityUid, string)> _recentlySent = new(); // Starlight edit
 
     public override void Initialize()
     {
@@ -71,8 +73,13 @@ public sealed class RadioDeviceSystem : EntitySystem
 
     private void OnSpeakerInit(EntityUid uid, RadioSpeakerComponent component, ComponentInit args)
     {
+        //Starlight begin
         if (component.Enabled)
-            EnsureComp<ActiveRadioComponent>(uid).Channels.UnionWith(component.Channels);
+        {
+            var radio = EnsureComp<ActiveRadioComponent>(uid);
+            radio.Channels.UnionWith(component.Channels);
+            Dirty(uid, radio);
+        }
         else
             RemCompDeferred<ActiveRadioComponent>(uid);
     }
@@ -102,15 +109,6 @@ public sealed class RadioDeviceSystem : EntitySystem
         ToggleRadioSpeaker(uid, args.User, args.Handled, component);
         args.Handled = true;
     }
-
-    public void ToggleRadioMicrophone(EntityUid uid, EntityUid user, bool quiet = false, RadioMicrophoneComponent? component = null)
-    {
-        if (!Resolve(uid, ref component))
-            return;
-
-        SetMicrophoneEnabled(uid, user, !component.Enabled, quiet, component);
-    }
-
     private void OnPowerChanged(EntityUid uid, RadioMicrophoneComponent component, ref PowerChangedEvent args)
     {
         if (args.Powered)
@@ -118,7 +116,8 @@ public sealed class RadioDeviceSystem : EntitySystem
         SetMicrophoneEnabled(uid, null, false, true, component);
     }
 
-    public void SetMicrophoneEnabled(EntityUid uid, EntityUid? user, bool enabled, bool quiet = false, RadioMicrophoneComponent? component = null)
+
+    public override void SetMicrophoneEnabled(EntityUid uid, EntityUid? user, bool enabled, bool quiet = false, RadioMicrophoneComponent? component = null)
     {
         if (!Resolve(uid, ref component, false))
             return;
@@ -142,34 +141,6 @@ public sealed class RadioDeviceSystem : EntitySystem
             RemCompDeferred<ActiveListenerComponent>(uid);
     }
 
-    public void ToggleRadioSpeaker(EntityUid uid, EntityUid user, bool quiet = false, RadioSpeakerComponent? component = null)
-    {
-        if (!Resolve(uid, ref component))
-            return;
-
-        SetSpeakerEnabled(uid, user, !component.Enabled, quiet, component);
-    }
-
-    public void SetSpeakerEnabled(EntityUid uid, EntityUid? user, bool enabled, bool quiet = false, RadioSpeakerComponent? component = null)
-    {
-        if (!Resolve(uid, ref component))
-            return;
-
-        component.Enabled = enabled;
-
-        if (!quiet && user != null)
-        {
-            var state = Loc.GetString(component.Enabled ? "handheld-radio-component-on-state" : "handheld-radio-component-off-state");
-            var message = Loc.GetString("handheld-radio-component-on-use", ("radioState", state));
-            _popup.PopupEntity(message, user.Value, user.Value);
-        }
-
-        _appearance.SetData(uid, RadioDeviceVisuals.Speaker, component.Enabled);
-        if (component.Enabled)
-            EnsureComp<ActiveRadioComponent>(uid).Channels.UnionWith(component.Channels);
-        else
-            RemCompDeferred<ActiveRadioComponent>(uid);
-    }
     #endregion
 
     private void OnExamine(EntityUid uid, RadioMicrophoneComponent component, ExaminedEvent args)
@@ -177,14 +148,22 @@ public sealed class RadioDeviceSystem : EntitySystem
         if (!args.IsInDetailsRange)
             return;
 
-        var proto = _protoMan.Index<RadioChannelPrototype>(component.BroadcastChannel);
-
-        using (args.PushGroup(nameof(RadioMicrophoneComponent)))
-        {
-            args.PushMarkup(Loc.GetString("handheld-radio-component-on-examine", ("frequency", proto.Frequency)));
-            args.PushMarkup(Loc.GetString("handheld-radio-component-chennel-examine",
-                ("channel", proto.LocalizedName)));
-        }
+        //Starlight begin
+        if (_protoMan.TryIndex<RadioChannelPrototype>(component.BroadcastChannel, out var proto))
+            using (args.PushGroup(nameof(RadioMicrophoneComponent)))
+            {
+                args.PushMarkup(Loc.GetString("handheld-radio-component-on-examine", ("frequency", proto.Frequency)));
+                args.PushMarkup(Loc.GetString("handheld-radio-component-chennel-examine",
+                    ("channel", proto.LocalizedName)));
+            }
+        else if (_chat.TryGetCustomChannel(uid, component.BroadcastChannel, out var channel))
+            using (args.PushGroup(nameof(RadioMicrophoneComponent)))
+            {
+                args.PushMarkup(Loc.GetString("handheld-radio-component-on-examine", ("frequency", channel.Frequency)));
+                args.PushMarkup(Loc.GetString("handheld-radio-component-chennel-examine",
+                    ("channel", channel.LocalizedName)));
+            }
+        //Starlight end
     }
 
     private void OnListen(EntityUid uid, RadioMicrophoneComponent component, ListenEvent args)
@@ -192,9 +171,14 @@ public sealed class RadioDeviceSystem : EntitySystem
         if (HasComp<RadioSpeakerComponent>(args.Source))
             return; // no feedback loops please.
 
-        var channel = _protoMan.Index<RadioChannelPrototype>(component.BroadcastChannel)!;
-        if (_recentlySent.Add((args.Message, args.Source, channel)))
+        //Starlight begin
+        if (_protoMan.TryIndex<RadioChannelPrototype>(component.BroadcastChannel, out var channel) &&
+            _recentlySent.Add((args.Message, args.Source, channel.ID)))
             _radio.SendRadioMessage(args.Source, args.Message, channel, uid);
+        else if (_chat.TryGetCustomChannel(uid, component.BroadcastChannel, out var customChannel) && 
+                 _recentlySent.Add((args.Message, args.Source, customChannel.Id)))
+            _radio.SendCustomRadioMessage(args.Source, args.Message, customChannel, uid);
+        //Starlight end
     }
 
     private void OnAttemptListen(EntityUid uid, RadioMicrophoneComponent component, ListenAttemptEvent args)
@@ -227,10 +211,13 @@ public sealed class RadioDeviceSystem : EntitySystem
     private void OnIntercomEncryptionChannelsChanged(Entity<IntercomComponent> ent, ref EncryptionChannelsChangedEvent args)
     {
         ent.Comp.SupportedChannels = args.Component.Channels.Select(p => new ProtoId<RadioChannelPrototype>(p)).ToList();
+        ent.Comp.CustomChannels = args.Component.CustomChannels;
 
         var channel = args.Component.DefaultChannel;
-        if (ent.Comp.CurrentChannel != null && ent.Comp.SupportedChannels.Contains(ent.Comp.CurrentChannel.Value))
+        //Starlight begin
+        if (ent.Comp.CurrentChannel != null && (ent.Comp.SupportedChannels.Contains(ent.Comp.CurrentChannel) || ent.Comp.CustomChannels.All(ch => ch.Id != ent.Comp.CurrentChannel)))
             channel = ent.Comp.CurrentChannel;
+        //Starlight end
 
         SetIntercomChannel(ent, channel);
     }
@@ -260,13 +247,19 @@ public sealed class RadioDeviceSystem : EntitySystem
         if (ent.Comp.RequiresPower && !this.IsPowered(ent, EntityManager))
             return;
 
-        if (!_protoMan.HasIndex<RadioChannelPrototype>(args.Channel) || !ent.Comp.SupportedChannels.Contains(args.Channel))
-            return;
+        //Starlight begin
+        if (!_protoMan.HasIndex<RadioChannelPrototype>(args.Channel) ||
+            !ent.Comp.SupportedChannels.Contains(args.Channel))
+        {
+            if (!_chat.TryGetCustomChannel(ent.Owner, args.Channel, out var customChannel)) return;
+            if (ent.Comp.CustomChannels.All(ch => ch.Id != customChannel.Id)) return;
+        }
+        //Starlight end
 
         SetIntercomChannel(ent, args.Channel);
     }
 
-    private void SetIntercomChannel(Entity<IntercomComponent> ent, ProtoId<RadioChannelPrototype>? channel)
+    private void SetIntercomChannel(Entity<IntercomComponent> ent, string? channel) // Starlight edit
     {
         ent.Comp.CurrentChannel = channel;
 
@@ -281,9 +274,9 @@ public sealed class RadioDeviceSystem : EntitySystem
         }
 
         if (TryComp<RadioMicrophoneComponent>(ent, out var mic))
-            mic.BroadcastChannel = channel;
+            mic.BroadcastChannel = channel; // Starlight edit
         if (TryComp<RadioSpeakerComponent>(ent, out var speaker))
-            speaker.Channels = new() { channel };
+            speaker.Channels = new() { channel }; // Starlight edit
         Dirty(ent);
     }
 }

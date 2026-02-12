@@ -88,6 +88,29 @@
     tags:
     - WhitelistChameleon
 
+# Fashion-O-Mat-Start
+- type: entity
+  parent: ClothingOuterStorageBase
+  id: ClothingUniformApron
+  name: elegant apron
+  description: Apron made from high-quality, smooth fabric with a soft sheen. Fits perfectly.
+  components:
+    - type: Sprite
+      sprite: _Starlight/Clothing/OuterClothing/OverClothes/apron.rsi
+    - type: Clothing
+      sprite: _Starlight/Clothing/OuterClothing/OverClothes/apron.rsi
+
+- type: entity
+  parent: ClothingOuterBase
+  id: ClothingOuterBrimstoneDT4
+  name: hell mark
+  description: Blood laser barrage!
+  components:
+  - type: Sprite
+    sprite: _Starlight/Clothing/OuterClothing/OverClothes/brimstone.rsi
+  - type: Clothing
+    sprite: _Starlight/Clothing/OuterClothing/OverClothes/brimstone.rsi
+# Fashion-O-Mat-End
 
 ## colored
 

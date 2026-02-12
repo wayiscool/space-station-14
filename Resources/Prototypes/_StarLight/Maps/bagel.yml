@@ -3,7 +3,7 @@
   mapName: 'Bagel Station'
   mapPath: /Maps/_Starlight/Stations/Bagel.yml
   minPlayers: 35
-  maxPlayers: 80
+  maxPlayers: 140
   stations:
     StarlightBagel:
       stationProto: StandardNanotrasenStation
@@ -57,7 +57,8 @@
             #supply
             SalvageSpecialist: [ 6, 6 ]
             CargoTechnician: [ 3, 3 ]
-            MiningSpecialist: [ 3, 3]
+            MiningSpecialist: [ 3, 3 ]
+            SalvageLead: [ 1, 1 ]
             MailTech: [ 1, 2 ]
             #civilian
             Assistant: [ -1, -1 ]
@@ -66,7 +67,7 @@
             Musician: [ 1, 1 ]
             #silicon
             StationAi: [ 1, 1 ]
-            Borg: [ 2, 2 ]
+            Borg: [ 2, 4 ]
             #law
             Magistrate: [ 1, 1 ]
             IAA: [ 2, 2 ]      

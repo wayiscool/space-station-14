@@ -19,6 +19,9 @@
   - BorgModuleTool
   - BorgModuleCable
   - BorgModuleFireExtinguisher
+  - BorgModuleInflatable
+  - BorgModuleArtistry
+  - BorgModuleUppies # Starlight
 
 - type: latheRecipePack
   id: BorgLimbsStatic
@@ -43,8 +46,10 @@
   - BorgModuleAdvancedCleaning
   - BorgModuleAdvancedTool
   - BorgModuleAdvancedClowning
-  - BorgModuleAdvancedChemical
+  - BorgModuleAdvancedTopical
   - BorgModuleAdvancedMining
+  - BorgModuleAdvancedLoading # Starlight
+  - BorgModuleSurgical # Starlight
 
 - type: latheRecipePack
   id: MechParts

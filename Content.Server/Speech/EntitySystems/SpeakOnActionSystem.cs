@@ -1,11 +1,10 @@
 using Content.Server.Chat.Systems;
-using Content.Shared.Speech.Components;
+using Content.Shared.Actions.Events;
+using Content.Shared.Chat;
 using Content.Shared.Speech;
+using Content.Shared.Speech.Components;
 using Content.Shared.Speech.EntitySystems;
 using Content.Shared.Speech.Muting;
-using Content.Shared.Actions.Events;
-using Content.Shared.Chat; // Starlight
-
 
 namespace Content.Server.Speech.EntitySystems;
 
@@ -34,7 +33,7 @@ public sealed class SpeakOnActionSystem : SharedSpeakOnActionSystem
 
         if (string.IsNullOrWhiteSpace(ent.Comp.Sentence))
             return;
-
-        _chat.TrySendInGameICMessage(user, Loc.GetString(ent.Comp.Sentence), InGameICChatType.Speak, false);
+        
+        _chat.TrySendInGameICMessage(user, Loc.GetString(ent.Comp.Sentence), ent.Comp.Whisper ? InGameICChatType.Whisper : InGameICChatType.Speak, false); // Starlight: add Whispering as an option
     }
 }

@@ -2,6 +2,7 @@ ui-options-function-open-m-help = Open mentor help
 ui-escape-connect-discord = Link Discord
 server-info-connect-discord-button = Link Discord
 
-## Controls menu
+## Accessibility
 
-ui-options-function-smart-equip-suit-storage = Smart-equip to suit storage
+ui-options-arachnophobia = Arachnophobia Mode
+ui-options-disable-job-icon-animation = Disable animation for chat and status icons

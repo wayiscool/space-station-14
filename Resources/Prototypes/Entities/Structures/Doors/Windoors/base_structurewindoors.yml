@@ -1,11 +1,15 @@
 #Normal windoors
 - type: entity
   id: BaseWindoor
-  parent: BaseStructure
+  parent: [BaseDeltaPressureGlassQuarter, BaseStructure, BaseStructureDissolvable] # Starlight-edit
   abstract: true
   placement:
     mode: SnapgridCenter
   components:
+  - type: Anchorable
+    flags:
+    - Anchorable
+  - type: Rotatable
   - type: MeleeSound
     soundGroups:
       Brute:
@@ -53,6 +57,10 @@
       shader: unshaded
       visible: false
       map: ["enum.ElectrifiedLayers.Sparks"]
+    - state: sparks
+      map: ["enum.DoorVisualLayers.BaseEmagging"]
+      shader: unshaded
+      visible: false
   - type: AnimationPlayer
   - type: ApcPowerReceiver
   - type: ExtensionCableReceiver
@@ -167,10 +175,13 @@
   - type: StaticPrice
     price: 150
   - type: PryUnpowered
+  - type: Tag #Starlight -- minimum arming distance
+    tags: 
+      - BulletUnarmedCollide #Starlight -- Make bullet pre-arming not phase through windoors 
 
 - type: entity
   id: BaseSecureWindoor
-  parent: BaseWindoor
+  parent: [BaseDeltaPressureReinforcedGlassQuarter, BaseWindoor]
   abstract: true
   components:
   - type: Sprite
@@ -204,6 +215,10 @@
       shader: unshaded
       visible: false
       map: [ "enum.ElectrifiedLayers.Sparks" ]
+    - state: sparks
+      map: ["enum.DoorVisualLayers.BaseEmagging"]
+      shader: unshaded
+      visible: false
   - type: Damageable
     damageModifierSet: RGlass
   - type: Destructible
@@ -237,12 +252,12 @@
     tags:
       - SecureWindoor
       # This tag is used to nagivate the Airlock construction graph. It's needed because the construction graph is shared between Airlock, AirlockGlass, and HighSecDoor
-
+      - BulletUnarmedCollide #Starlight -- Make bullet pre-arming not phase through windoors 
 
 #Plasma Windoors
 - type: entity
   id: BasePlasmaWindoor
-  parent: BaseWindoor
+  parent: [BaseDeltaPressurePlasmaQuarter, BaseWindoor]
   abstract: true
   components:
   - type: Sprite
@@ -275,6 +290,10 @@
       shader: unshaded
       visible: false
       map: [ "enum.ElectrifiedLayers.Sparks" ]
+    - state: sparks
+      map: ["enum.DoorVisualLayers.BaseEmagging"]
+      shader: unshaded
+      visible: false
   - type: Destructible
     thresholds:
     - trigger:
@@ -307,7 +326,7 @@
 
 - type: entity
   id: BaseSecurePlasmaWindoor
-  parent: BaseSecureWindoor
+  parent: [BaseDeltaPressureReinforcedPlasmaQuarter, BaseSecureWindoor]
   abstract: true
   components:
   - type: Sprite
@@ -341,6 +360,10 @@
       shader: unshaded
       visible: false
       map: [ "enum.ElectrifiedLayers.Sparks" ]
+    - state: sparks
+      map: ["enum.DoorVisualLayers.BaseEmagging"]
+      shader: unshaded
+      visible: false
   - type: Destructible
     thresholds:
     - trigger:
@@ -379,7 +402,7 @@
 #Uranium Windoors
 - type: entity
   id: BaseUraniumWindoor
-  parent: BaseWindoor
+  parent: [BaseDeltaPressurePlasmaQuarter, BaseWindoor]
   abstract: true
   components:
   - type: Sprite
@@ -412,6 +435,10 @@
       shader: unshaded
       visible: false
       map: [ "enum.ElectrifiedLayers.Sparks" ]
+    - state: sparks
+      map: ["enum.DoorVisualLayers.BaseEmagging"]
+      shader: unshaded
+      visible: false
   - type: Destructible
     thresholds:
     - trigger:
@@ -444,7 +471,7 @@
 
 - type: entity
   id: BaseSecureUraniumWindoor
-  parent: BaseSecureWindoor
+  parent: [BaseDeltaPressureReinforcedPlasmaQuarter, BaseSecureWindoor]
   abstract: true
   components:
   - type: Sprite
@@ -478,6 +505,10 @@
       shader: unshaded
       visible: false
       map: [ "enum.ElectrifiedLayers.Sparks" ]
+    - state: sparks
+      map: ["enum.DoorVisualLayers.BaseEmagging"]
+      shader: unshaded
+      visible: false
   - type: Destructible
     thresholds:
     - trigger:

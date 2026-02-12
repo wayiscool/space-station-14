@@ -26,10 +26,10 @@ jobs:
           cd RobustToolbox
           git fetch --all --tags
 
-      - name: Setup .NET 9.0
+      - name: Setup .NET 10.0
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
       - name: dotnet restore
         run: dotnet restore
@@ -38,7 +38,7 @@ jobs:
         run: dotnet build Content.Packaging -c Release --no-restore /m
 
       - name: Package server
-        run: dotnet run --project Content.Packaging server --platform win-x64 --platform linux-x64 --platform osx-x64 --platform linux-arm64
+        run: dotnet run --project Content.Packaging server --platform win-x64 --platform win-arm64 --platform linux-x64 --platform linux-arm64 --platform osx-x64 --platform osx-arm64
 
       - name: Package client
         run: dotnet run --project Content.Packaging client --no-wipe-release
@@ -78,3 +78,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ vars.GITHUB_REPOSITORY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_CHANGELOG_ROLE_ID: "1308143973684088883"

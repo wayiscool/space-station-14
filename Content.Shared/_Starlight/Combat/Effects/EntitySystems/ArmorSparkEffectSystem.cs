@@ -22,7 +22,6 @@ public abstract class SharedArmorSparkEffectSystem : EntitySystem
 {
     [Dependency] private readonly INetManager _net = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly SharedTransformSystem _transform = default!;
 
     public override void Initialize()
     {
@@ -80,7 +79,7 @@ public abstract class SharedArmorSparkEffectSystem : EntitySystem
         if (HasComp<ArmorComponent>(armorUid))
         {
             var coeffQuery = new CoefficientQueryEvent(SlotFlags.OUTERCLOTHING);
-            var relayedEvent = new InventoryRelayedEvent<CoefficientQueryEvent>(coeffQuery);
+            var relayedEvent = new InventoryRelayedEvent<CoefficientQueryEvent>(coeffQuery, armorUid);
             RaiseLocalEvent(armorUid, relayedEvent);
             
             if (coeffQuery.DamageModifiers.Coefficients.TryGetValue("Piercing", out var pierceCoeff))

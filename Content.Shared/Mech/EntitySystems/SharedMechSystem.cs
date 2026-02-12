@@ -4,7 +4,6 @@ using Content.Shared.Actions;
 using Content.Shared.Destructible;
 using Content.Shared.DoAfter;
 using Content.Shared.DragDrop;
-using Content.Shared.Emag.Components;
 using Content.Shared.Emag.Systems;
 using Content.Shared.FixedPoint;
 using Content.Shared.Interaction.Components;
@@ -14,19 +13,24 @@ using Content.Shared.Mech.Components;
 using Content.Shared.Mech.Equipment.Components;
 using Content.Shared.Movement.Components;
 using Content.Shared.Movement.Systems;
-using Content.Shared.Movement.Events; // Starlight-edit
 using Content.Shared.Popups;
-using Content.Shared.Repairable; // Starlight-edit
+using Content.Shared.Storage.Components;
 using Content.Shared.Weapons.Melee;
 using Content.Shared.Weapons.Ranged.Events;
 using Content.Shared.Whitelist;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Containers;
-using Robust.Shared.GameObjects;
 using Robust.Shared.Network;
 using Robust.Shared.Serialization;
 using Robust.Shared.Timing;
 using System.Linq;
+
+#region Starlight
+using Content.Shared.Movement.Events;
+using Content.Shared.Repairable;
+using Content.Shared.Stunnable;
+using Content.Shared.Movement.Pulling.Events;
+#endregion
 
 namespace Content.Shared.Mech.EntitySystems;
 
@@ -58,6 +62,7 @@ public abstract partial class SharedMechSystem : EntitySystem
         SubscribeLocalEvent<MechComponent, UserActivateInWorldEvent>(RelayInteractionEvent);
         SubscribeLocalEvent<MechComponent, ComponentStartup>(OnStartup);
         SubscribeLocalEvent<MechComponent, DestructionEventArgs>(OnDestruction);
+        SubscribeLocalEvent<MechComponent, EntityStorageIntoContainerAttemptEvent>(OnEntityStorageDump);
         SubscribeLocalEvent<MechComponent, GetAdditionalAccessEvent>(OnGetAdditionalAccess);
         SubscribeLocalEvent<MechComponent, DragDropTargetEvent>(OnDragDrop);
         SubscribeLocalEvent<MechComponent, CanDropTargetEvent>(OnCanDragDrop);
@@ -66,13 +71,18 @@ public abstract partial class SharedMechSystem : EntitySystem
         SubscribeLocalEvent<MechPilotComponent, GetMeleeWeaponEvent>(OnGetMeleeWeapon);
         SubscribeLocalEvent<MechPilotComponent, CanAttackFromContainerEvent>(OnCanAttackFromContainer);
         SubscribeLocalEvent<MechPilotComponent, AttackAttemptEvent>(OnAttackAttempt);
+
+        #region Starlight
         SubscribeLocalEvent<MechPilotComponent, EntGotRemovedFromContainerMessage>(OnPilotRemoved); // Starlight-edit
 
-        SubscribeLocalEvent<MechComponent, UpdateCanMoveEvent>(OnMechMoveEvent); // Starlight-edit: Moved from server side, broken
-        SubscribeLocalEvent<MechPilotComponent, UpdateCanMoveEvent>(OnPilotMoveEvent); // Starlight-edit
-        SubscribeLocalEvent<MechComponent, ChangeDirectionAttemptEvent>(OnMechMoveEvent); // Starlight-edit
-        SubscribeLocalEvent<MechComponent, ShotAttemptedEvent>(OnShootAttempt); // Starlight-edit: Moved from server side, broken
-        SubscribeLocalEvent<MechComponent, CanRepairEvent>(OnRepairAttempt); // Starlight-edit: Moved from server side, broken
+        SubscribeLocalEvent<MechComponent, PullAttemptEvent>(OnMechPullAttempt); // Can't pull mech if in maintenance mode or pilot exists
+        SubscribeLocalEvent<MechPilotComponent, UpdateCanMoveEvent>(OnPilotMoveEvent);
+        SubscribeLocalEvent<MechComponent, ChangeDirectionAttemptEvent>(OnMechMoveEvent);
+        SubscribeLocalEvent<MechComponent, UpdateCanMoveEvent>(OnMechMoveEvent); // Moved from server side, broken
+        SubscribeLocalEvent<MechComponent, ShotAttemptedEvent>(OnShootAttempt); // Moved from server side, broken
+        SubscribeLocalEvent<MechComponent, CanRepairEvent>(OnRepairAttempt); //  Moved from server side, broken
+        SubscribeLocalEvent<MechPilotComponent, KnockDownAttemptEvent>(OnKnockdownAttempt);
+        #endregion
 
         InitializeRelay();
     }
@@ -97,6 +107,12 @@ public abstract partial class SharedMechSystem : EntitySystem
             args.Cancel();
     }
 
+    private void OnMechPullAttempt(EntityUid uid, MechComponent component, PullAttemptEvent args)
+    {
+        if (!args.Cancelled && (component.MaintenanceMode || component.PilotSlot.ContainedEntity != null))
+            args.Cancelled = true;
+    }
+
     private void OnShootAttempt(EntityUid uid, MechComponent component, ref ShotAttemptedEvent args)
     {
         if (!component.MaintenanceMode)
@@ -115,6 +131,11 @@ public abstract partial class SharedMechSystem : EntitySystem
         }
     }
 
+    private void OnKnockdownAttempt(EntityUid uid, MechPilotComponent component, ref KnockDownAttemptEvent args)
+    {
+        args.Cancelled = true;
+        _popup.PopupCursor("You can't lie down while piloting a mech.", uid, PopupType.SmallCaution);
+    }
     // Starlight-end
 
     private void OnToggleEquipmentAction(EntityUid uid, MechComponent component, MechToggleEquipmentEvent args)
@@ -173,6 +194,12 @@ public abstract partial class SharedMechSystem : EntitySystem
     private void OnDestruction(EntityUid uid, MechComponent component, DestructionEventArgs args)
     {
         BreakMech(uid, component);
+    }
+
+    private void OnEntityStorageDump(Entity<MechComponent> entity, ref EntityStorageIntoContainerAttemptEvent args)
+    {
+        // There's no reason we should dump into /any/ of the mech's containers.
+        args.Cancelled = true;
     }
 
     private void OnGetAdditionalAccess(EntityUid uid, MechComponent component, ref GetAdditionalAccessEvent args)
@@ -256,7 +283,7 @@ public abstract partial class SharedMechSystem : EntitySystem
     }
 
     /// <summary>
-    /// Destroys the mech, removing the user and ejecting all installed equipment.
+    /// Destroys the mech, removing the user and ejecting anything contained.
     /// </summary>
     /// <param name="uid"></param>
     /// <param name="component"></param>
@@ -332,13 +359,17 @@ public abstract partial class SharedMechSystem : EntitySystem
         if (_whitelistSystem.IsWhitelistFail(component.EquipmentWhitelist, toInsert))
             return;
 
-        if (!TryComp<MetaDataComponent>(toInsert, out var toInsertMeta))
-            return;
+        // Starlight start
+        var toInsertMeta = MetaData(toInsert);
 
         var equipment = new List<EntityUid>(component.EquipmentContainer.ContainedEntities);
         foreach (var ent in equipment)
-            if (TryComp<MetaDataComponent>(ent, out var entMeta) && entMeta.EntityPrototype == toInsertMeta.EntityPrototype)
+        {
+            var entMeta = MetaData(ent);
+            if (entMeta.EntityPrototype == toInsertMeta.EntityPrototype)
                 return;
+        }
+        // Starlight end
 
         equipmentComponent.EquipmentOwner = uid;
         _container.Insert(toInsert, component.EquipmentContainer);
@@ -356,14 +387,19 @@ public abstract partial class SharedMechSystem : EntitySystem
     /// <param name="toRemove"></param>
     /// <param name="component"></param>
     /// <param name="equipmentComponent"></param>
-    /// <param name="forced">Whether or not the removal can be cancelled</param>
+    /// <param name="forced">
+    ///     Whether or not the removal can be cancelled, and if non-mech equipment should be ejected.
+    /// </param>
     public void RemoveEquipment(EntityUid uid, EntityUid toRemove, MechComponent? component = null,
         MechEquipmentComponent? equipmentComponent = null, bool forced = false)
     {
         if (!Resolve(uid, ref component))
             return;
 
-        if (!Resolve(toRemove, ref equipmentComponent))
+        // When forced, we also want to handle the possibility that the "equipment" isn't actually equipment.
+        // This /shouldn't/ be possible thanks to OnEntityStorageDump, but there's been quite a few regressions
+        // with entities being hardlock stuck inside mechs.
+        if (!Resolve(toRemove, ref equipmentComponent) && !forced)
             return;
 
         if (!forced)
@@ -380,13 +416,16 @@ public abstract partial class SharedMechSystem : EntitySystem
         if (component.CurrentSelectedEquipment == toRemove)
             CycleEquipment(uid, component);
 
-        equipmentComponent.EquipmentOwner = null;
+        if (forced && equipmentComponent != null)
+            equipmentComponent.EquipmentOwner = null;
+
         _container.Remove(toRemove, component.EquipmentContainer);
         // Starlight-edit: UpdateUserInterface moved on server side.
     }
 
     /// <summary>
     /// Attempts to change the amount of energy in the mech.
+    /// TODO: Power cells are predicted now, so no need to duplicate the charge level
     /// </summary>
     /// <param name="uid">The mech itself</param>
     /// <param name="delta">The change in energy</param>

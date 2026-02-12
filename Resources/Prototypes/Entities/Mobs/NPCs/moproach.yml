@@ -7,9 +7,10 @@
   # Starlight-start: Languages
   - type: LanguageKnowledge
     speaks:
-    - Moffic
+    - Mothroach
     understands:
     - Moffic
+    - Mothroach
     - GalacticCommon
   # Starlight-end
   - type: GhostRole
@@ -81,13 +82,15 @@
   id: MoproachBox
   description: A kit to quickly get two moproaches ready to work.
   components:
-  - type: StorageFill
-    contents:
-    - id: MoproachCubeWrapped
-      amount: 2
-    - id: ClothingHeadHatPurplesoft
-      amount: 2
-    - id: PaperMoproachManual
+  - type: EntityTableContainerFill
+    containers:
+      storagebase: !type:AllSelector
+        children:
+        - id: MoproachCubeWrapped
+          amount: 2
+        - id: ClothingHeadHatPurplesoft
+          amount: 2
+        - id: PaperMoproachManual
   - type: Sprite
     sprite: Objects/Misc/monkeycube.rsi
     state: box_moproach

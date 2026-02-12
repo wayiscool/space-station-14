@@ -1,5 +1,6 @@
 using Content.Shared.Changeling;
 using Content.Shared.Chemistry.Components;
+using Content.Shared.Chemistry.Reagent;
 using Content.Shared.Cuffs.Components;
 using Content.Shared.DoAfter;
 using Content.Shared.FixedPoint;
@@ -11,22 +12,27 @@ using Content.Shared.Damage;
 using Robust.Shared.Prototypes;
 using Content.Shared.Damage.Prototypes;
 using Content.Server.Objectives.Components;
-using Content.Server.Light.Components;
 using Content.Shared.Eye.Blinding.Systems;
 using Content.Shared.Eye.Blinding.Components;
 using Content.Shared.Movement.Pulling.Components;
 using Content.Shared.Stealth.Components;
 using Content.Shared.Damage.Components;
-using Content.Server.Radio.Components;
 using Content.Shared.Movement.Systems;
 using Content.Shared.Flash.Components;
 using Content.Shared.Mindshield.Components;
 using Content.Shared.Mindshield.FakeMindShield;
 using Content.Shared.StatusEffect;
 using Content.Shared.Light.Components;
-using Content.Shared.Changeling.Devour;
 using Content.Shared.Actions.Events;
 using Content.Shared.RetractableItemAction;
+using Content.Shared.Changeling.Systems;
+using Content.Shared.Changeling.Components;
+using Content.Server.Changeling.Systems;
+// Starlight edit start
+using Content.Shared.Humanoid;
+using Content.Shared.Body.Components;
+using Content.Shared.Chemistry.Reagent;
+// Starlight edit end
 
 namespace Content.Server.Changeling;
 
@@ -34,6 +40,10 @@ public sealed partial class ChangelingSystem : EntitySystem
 {
     [Dependency] private readonly StatusEffectsSystem _statusEffect = default!;
     [Dependency] private readonly ChangelingIdentitySystem _changelingIdentitySystem = default!;
+
+    private static readonly ProtoId<ReagentPrototype> FerrochromicAcidPrototype = "FerrochromicAcid";
+    private static readonly ProtoId<ReagentPrototype> PolytrinicAcidPrototype = "PolytrinicAcid";
+
     public void SubscribeAbilities()
     {
         SubscribeLocalEvent<ChangelingComponent, OpenEvolutionMenuEvent>(OnOpenEvolutionMenu);
@@ -126,9 +136,20 @@ public sealed partial class ChangelingSystem : EntitySystem
 
         UpdateBiomass(uid, comp, comp.MaxBiomass - comp.TotalAbsorbedEntities);
 
-        _blood.ChangeBloodReagent(target, "FerrochromicAcid");
-        _blood.SpillAllSolutions(target);
-
+        // Starlight edit start - Do not turn the victim's blood into ferrochromic acid permanently
+        // allows for ling tests to still pass despite being hollowed.
+        if (TryComp<BloodstreamComponent>(target, out var bloodstream) && bloodstream.BloodReferenceSolution is { } originalBlood)
+        {
+            var blood = originalBlood.Clone();
+            blood.ScaleTo(originalBlood.Volume);
+            var ferroAcid = new ReagentQuantity(FerrochromicAcidPrototype, originalBlood.Volume);
+        
+            _blood.ChangeBloodReagents(target, new Solution([ferroAcid]));
+            _blood.SpillAllSolutions(target);
+            _blood.ChangeBloodReagents(target, blood);
+        }
+        // Starlight edit end
+        
         EnsureComp<AbsorbedComponent>(target);
 
         var popup = Loc.GetString("changeling-absorb-end-self-ling");
@@ -140,12 +161,19 @@ public sealed partial class ChangelingSystem : EntitySystem
             bonusEvolutionPoints += 10;
             comp.MaxBiomass += targetComp.MaxBiomass / 2;
         }
-        else
+        else if (HasComp<HumanoidAppearanceComponent>(target))  // Starlight edit
         {
             popup = Loc.GetString("changeling-absorb-end-self");
             bonusChemicals += 10;
             bonusEvolutionPoints += 2;
         }
+        // Starlight edit start
+        else
+        {
+            popup = Loc.GetString("changeling-absorb-end-self");
+            bonusChemicals += 5;
+        }
+        // Starlight edit end
         TryStealDNA(uid, target, comp, true);
         comp.TotalAbsorbedEntities++;
 
@@ -221,7 +249,7 @@ public sealed partial class ChangelingSystem : EntitySystem
             return;
 
         // heal of everything
-        _damage.SetAllDamage(uid, damageable, 0);
+        _damage.SetAllDamage(uid, 0);
         _mobState.ChangeMobState(uid, MobState.Alive);
         _blood.TryModifyBloodLevel(uid, 1000);
         _blood.TryModifyBleedAmount(uid, -1000);
@@ -261,7 +289,7 @@ public sealed partial class ChangelingSystem : EntitySystem
 
         var pos = _transform.GetMapCoordinates(uid);
         var power = comp.ShriekPower;
-        _emp.EmpPulse(pos, power, 5000f, power * 2);
+        _emp.EmpPulse(pos, power, 5000f, power * TimeSpan.FromSeconds(2));
     }
     private void OnShriekResonant(EntityUid uid, ChangelingComponent comp, ref ShriekResonantEvent args)
     {
@@ -385,14 +413,19 @@ public sealed partial class ChangelingSystem : EntitySystem
     {
         if (TryComp<CuffableComponent>(uid, out var cuffs) && cuffs.Container.ContainedEntities.Count > 0)
         {
-            var cuff = cuffs.LastAddedCuffs;
+            if (_cuffs.TryGetLastCuff(uid, out var cuff))
+            {
+                if (cuff.HasValue)
+                {
+                    _cuffs.Uncuff(uid, uid, cuff.Value);
+                }
+            }
 
-            _cuffs.Uncuff(uid, cuffs.LastAddedCuffs, cuff);
             QueueDel(cuff);
         }
 
         var soln = new Solution();
-        soln.AddReagent("PolytrinicAcid", 10f);
+        soln.AddReagent(PolytrinicAcidPrototype, 10f);
 
         if (_pull.IsPulled(uid))
         {

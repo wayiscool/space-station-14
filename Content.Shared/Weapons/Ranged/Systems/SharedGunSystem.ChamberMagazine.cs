@@ -13,11 +13,9 @@ namespace Content.Shared.Weapons.Ranged.Systems;
 
 public abstract partial class SharedGunSystem
 {
-    protected const string ChamberSlot = "gun_chamber";
-
     protected virtual void InitializeChamberMagazine()
     {
-        SubscribeLocalEvent<ChamberMagazineAmmoProviderComponent, ComponentStartup>(OnChamberStartup);
+        SubscribeLocalEvent<ChamberMagazineAmmoProviderComponent, MapInitEvent>(OnChamberMapInit);
         SubscribeLocalEvent<ChamberMagazineAmmoProviderComponent, TakeAmmoEvent>(OnChamberMagazineTakeAmmo);
         SubscribeLocalEvent<ChamberMagazineAmmoProviderComponent, GetAmmoCountEvent>(OnChamberAmmoCount);
 
@@ -38,7 +36,7 @@ public abstract partial class SharedGunSystem
         SubscribeLocalEvent<ChamberMagazineAmmoProviderComponent, ExaminedEvent>(OnChamberMagazineExamine);
     }
 
-    private void OnChamberStartup(EntityUid uid, ChamberMagazineAmmoProviderComponent component, ComponentStartup args)
+    private void OnChamberMapInit(EntityUid uid, ChamberMagazineAmmoProviderComponent component, MapInitEvent args)
     {
         if (component.SelectedPrefix == null && component.AvailablePrefixes.Count > 1)
         {
@@ -49,7 +47,7 @@ public abstract partial class SharedGunSystem
         // Appearance data doesn't get serialized and want to make sure this is correct on spawn (regardless of MapInit) so.
         if (component.BoltClosed != null)
         {
-           Appearance.SetData(uid, AmmoVisuals.BoltClosed, component.BoltClosed.Value);
+            Appearance.SetData(uid, AmmoVisuals.BoltClosed, component.BoltClosed.Value);
         }
     }
 

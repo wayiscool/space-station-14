@@ -1,19 +1,16 @@
 ﻿using System.Numerics;
 using Content.Client.Animations;
-using Content.Client.DisplacementMap;
 using Content.Client.Gameplay;
 using Content.Client.Items;
 using Content.Client.Weapons.Ranged.Components;
-using Content.Shared._Starlight.Effects;
-using Content.Shared._Starlight.Weapon.Components;
 using Content.Shared.Camera;
 using Content.Shared.CombatMode;
-using Content.Shared.Mech.Components;
+using Content.Shared.Damage;
+using Content.Shared.Weapons.Hitscan.Components;
 using Content.Shared.Weapons.Ranged;
 using Content.Shared.Weapons.Ranged.Components;
 using Content.Shared.Weapons.Ranged.Events;
 using Content.Shared.Weapons.Ranged.Systems;
-using Content.Shared.Starlight.Utility;
 using Robust.Client.Animations;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
@@ -21,36 +18,50 @@ using Robust.Client.Input;
 using Robust.Client.Player;
 using Robust.Client.State;
 using Robust.Shared.Animations;
+using Robust.Shared.Audio;
 using Robust.Shared.Input;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Prototypes;
-using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 using SharedGunSystem = Content.Shared.Weapons.Ranged.Systems.SharedGunSystem;
 using TimedDespawnComponent = Robust.Shared.Spawners.TimedDespawnComponent;
-using Robust.Shared.Configuration;
+
+#region Starlight
+using Content.Client.DisplacementMap;
+using Content.Shared._Starlight.Effects;
+using Content.Shared._Starlight.Weapon.Components;
+using Content.Shared.Mech.Components;
+using Content.Shared.Starlight.Utility;
 using Content.Shared.Starlight.CCVar;
+using Content.Shared.Weapons.Hitscan.Events;
+using Robust.Shared.Timing;
+using Robust.Shared.Configuration;
+#endregion Starlight
 
 namespace Content.Client.Weapons.Ranged.Systems;
 
 // There’ve been so many radical changes here that you can basically consider the entire file as being under the Starlight folder now.
 public sealed partial class GunSystem : SharedGunSystem
 {
-    [Dependency] private readonly IConfigurationManager _cfg = default!;
-    [Dependency] private readonly IComponentFactory _factory = default!;
+    [Dependency] private readonly AnimationPlayerSystem _animPlayer = default!;
     [Dependency] private readonly IEyeManager _eyeManager = default!;
     [Dependency] private readonly IInputManager _inputManager = default!;
+    [Dependency] private readonly InputSystem _inputSystem = default!;
+    [Dependency] private readonly IOverlayManager _overlayManager = default!;
     [Dependency] private readonly IPlayerManager _player = default!;
     [Dependency] private readonly IStateManager _state = default!;
-    [Dependency] private readonly IPrototypeManager _proto = default!;
-    [Dependency] private readonly AnimationPlayerSystem _animPlayer = default!;
-    [Dependency] private readonly InputSystem _inputSystem = default!;
     [Dependency] private readonly SharedCameraRecoilSystem _recoil = default!;
     [Dependency] private readonly SharedMapSystem _maps = default!;
     [Dependency] private readonly SharedTransformSystem _xform = default!;
-    [Dependency] private readonly DisplacementMapSystem _displacement = default!;
     [Dependency] private readonly SpriteSystem _sprite = default!;
+
+#region Starlight
+    [Dependency] private readonly IConfigurationManager _cfg = default!;
+    [Dependency] private readonly IComponentFactory _factory = default!;
+    [Dependency] private readonly IPrototypeManager _proto = default!;
+    [Dependency] private readonly DisplacementMapSystem _displacement = default!;
+#endregion Starlight
 
     public static readonly EntProtoId HitscanProto = "HitscanEffect";
     public const string ImpactProto = "ImpactEffect";
@@ -73,11 +84,10 @@ public sealed partial class GunSystem : SharedGunSystem
                 return;
 
             _spreadOverlay = value;
-            var overlayManager = IoCManager.Resolve<IOverlayManager>();
 
             if (_spreadOverlay)
             {
-                overlayManager.AddOverlay(new GunSpreadOverlay(
+                _overlayManager.AddOverlay(new GunSpreadOverlay(
                     EntityManager,
                     _eyeManager,
                     Timing,
@@ -88,7 +98,7 @@ public sealed partial class GunSystem : SharedGunSystem
             }
             else
             {
-                overlayManager.RemoveOverlay<GunSpreadOverlay>();
+                _overlayManager.RemoveOverlay<GunSpreadOverlay>();
             }
         }
     }
@@ -102,7 +112,6 @@ public sealed partial class GunSystem : SharedGunSystem
 
         UpdatesOutsidePrediction = true;
         SubscribeLocalEvent<AmmoCounterComponent, ItemStatusCollectMessage>(OnAmmoCounterCollect);
-        SubscribeLocalEvent<AmmoCounterComponent, UpdateClientAmmoEvent>(OnUpdateClientAmmo);
         SubscribeAllEvent<MuzzleFlashEvent>(OnMuzzleFlash);
 
         // Plays animated effects on the client.
@@ -114,10 +123,6 @@ public sealed partial class GunSystem : SharedGunSystem
         _displacementEffect = _proto.Index<DisplacementEffect>("displacementEffect");
     }
 
-    private void OnUpdateClientAmmo(EntityUid uid, AmmoCounterComponent ammoComp, ref UpdateClientAmmoEvent args)
-    {
-        UpdateAmmoCount(uid, ammoComp);
-    }
 
     private void OnMuzzleFlash(MuzzleFlashEvent args)
     {
@@ -128,40 +133,37 @@ public sealed partial class GunSystem : SharedGunSystem
 
     private void OnHitscan(HitscanEvent ev)
     {
-        var hitscan = _proto.Index(ev.Hitscan);
-        //The real bullet speed is so high that the bullet isn’t visible at all. So, let's slow it down 5x.
-        var bulletSpeed = hitscan.Speed / 5000;
-        foreach (var effects in ev.Effects)
+        var delay = 0f;
+        foreach (var trace in ev.Traces)
         {
-            var delay = 0f;
-            foreach (var effect in effects)
-                delay = FireEffect(hitscan, bulletSpeed, delay, effect);
+            delay = FireEffect(ev, delay, trace);
         }
     }
 
-    private float FireEffect(HitscanPrototype hitscan, float bulletSpeed, float delay, Effect effect)
+    private float FireEffect(HitscanEvent visuals, float delay, HitscanTrace trace)
     {
-        var length = effect.Distance / bulletSpeed;
-        if (effect.MuzzleCoordinates is { } muzzleCoordinates)
+        //The real bullet speed is so high that the bullet isn’t visible at all. So, let's slow it down 5x.
+        var length = trace.Distance / (visuals.Speed / 5000);
+        if (trace.MuzzleCoordinates is { } muzzleCoordinates)
         {
-            if (hitscan.MuzzleFlash is { } mozzle && (_tracesEnabled || hitscan.Bullet is null))
-                RenderFlash(muzzleCoordinates, effect.Angle, mozzle, 1f, false, false, length, delay);
+            if (visuals.MuzzleFlash is { } mozzle && (_tracesEnabled || visuals.Bullet is null))
+                RenderFlash(muzzleCoordinates, trace.Angle, mozzle, 1f, false, false, length, delay);
 
-            if (hitscan.Bullet is { } bullet)
-                RenderBullet(muzzleCoordinates, effect.Angle, bullet, effect.Distance - 1.5f, length, delay);
+            if (visuals.Bullet is { } bullet)
+                RenderBullet(muzzleCoordinates, trace.Angle, bullet, trace.Distance - 1.5f, length, delay);
         }
-        if (hitscan.TravelFlash is { } travel && effect.TravelCoordinates is { } travelCoordinates && (_tracesEnabled || hitscan.Bullet is null))
-            RenderFlash(travelCoordinates, effect.Angle, travel, effect.Distance - 1.5f, true, false, length, delay);
+        if (visuals.TravelFlash is { } travel && trace.TravelCoordinates is { } travelCoordinates && (_tracesEnabled || visuals.Bullet is null))
+            RenderFlash(travelCoordinates, trace.Angle, travel, trace.Distance - 1.5f, true, false, length, delay);
         delay += length;
 
-        if ((hitscan.ImpactFlash is not null || effect.ImpactEnt is not null) && (_tracesEnabled || hitscan.Bullet is null))
+        if ((visuals.ImpactFlash is not null || trace.ImpactedEnt is not null) && (_tracesEnabled || visuals.Bullet is null))
             Timer.Spawn((int)delay, () =>
             {
-                if (hitscan.ImpactFlash is { } impact)
-                    RenderFlash(effect.ImpactCoordinates, effect.Angle, impact, 1f, false, true, length, delay);
+                if (visuals.ImpactFlash is { } impact)
+                    RenderFlash(trace.ImpactCoordinates, trace.Angle, impact, 1f, false, true, length, delay);
 
-                if (effect.ImpactEnt is { } netEnt && GetEntity(netEnt) is EntityUid ent)
-                    RenderDisplacementImpact(GetCoordinates(effect.ImpactCoordinates), effect.Angle, ent);
+                if (trace.ImpactedEnt is { } netEnt && GetEntity(netEnt) is EntityUid ent)
+                    RenderDisplacementImpact(GetCoordinates(trace.ImpactCoordinates), trace.Angle, ent);
             });
         return delay;
     }
@@ -357,6 +359,8 @@ public sealed partial class GunSystem : SharedGunSystem
 
     public override void Update(float frameTime)
     {
+        base.Update(frameTime);
+
         if (!Timing.IsFirstTimePredicted)
             return;
 
@@ -374,29 +378,29 @@ public sealed partial class GunSystem : SharedGunSystem
             entity = mechPilot.Mech;
         }
 
-        if (!TryGetGun(entity, out var gunUid, out var gun))
+        if (!TryGetGun(entity, out var gun))
         {
             return;
         }
 
-        var useKey = gun.UseKey ? EngineKeyFunctions.Use : EngineKeyFunctions.UseSecondary;
+        var useKey = gun.Comp.UseKey ? EngineKeyFunctions.Use : EngineKeyFunctions.UseSecondary;
 
-        if (_inputSystem.CmdStates.GetState(useKey) != BoundKeyState.Down && !gun.BurstActivated)
+        if (_inputSystem.CmdStates.GetState(useKey) != BoundKeyState.Down && !gun.Comp.BurstActivated)
         {
-            if (gun.ShotCounter != 0)
-                RaisePredictiveEvent(new RequestStopShootEvent { Gun = GetNetEntity(gunUid) });
+            if (gun.Comp.ShotCounter != 0)
+                RaisePredictiveEvent(new RequestStopShootEvent { Gun = GetNetEntity(gun) });
             return;
         }
 
-        if (gun.NextFire > Timing.CurTime)
+        if (gun.Comp.NextFire > Timing.CurTime)
             return;
 
         var mousePos = _eyeManager.PixelToMap(_inputManager.MouseScreenPosition);
 
         if (mousePos.MapId == MapId.Nullspace)
         {
-            if (gun.ShotCounter != 0)
-                RaisePredictiveEvent(new RequestStopShootEvent { Gun = GetNetEntity(gunUid) });
+            if (gun.Comp.ShotCounter != 0)
+                RaisePredictiveEvent(new RequestStopShootEvent { Gun = GetNetEntity(gun) });
 
             return;
         }
@@ -414,11 +418,11 @@ public sealed partial class GunSystem : SharedGunSystem
         {
             Target = target,
             Coordinates = GetNetCoordinates(coordinates),
-            Gun = GetNetEntity(gunUid),
+            Gun = GetNetEntity(gun),
         });
     }
 
-    public override void Shoot(EntityUid gunUid, GunComponent gun, List<(EntityUid? Entity, IShootable Shootable)> ammo,
+    public override void Shoot(Entity<GunComponent> gun, List<(EntityUid? Entity, IShootable Shootable)> ammo,
         EntityCoordinates fromCoordinates, EntityCoordinates toCoordinates, out bool userImpulse, EntityUid? user = null, bool throwItems = false)
     {
         userImpulse = true;
@@ -433,7 +437,8 @@ public sealed partial class GunSystem : SharedGunSystem
         {
             if (throwItems)
             {
-                Recoil(user, direction, gun.CameraRecoilScalarModified);
+                Audio.PlayPredicted(gun.Comp.SoundGunshotModified, gun, user); // Starlight-edit: fix pneumatic cannon sounds
+                Recoil(user, direction, gun.Comp.CameraRecoilScalarModified);
                 if (IsClientSide(ent!.Value))
                     Del(ent.Value);
                 else
@@ -441,35 +446,16 @@ public sealed partial class GunSystem : SharedGunSystem
                 continue;
             }
 
+            // TODO: Clean this up in a gun refactor at some point - too much copy pasting
             switch (shootable)
             {
-                //🌟Starlight🌟
-                case HitScanCartridgeAmmoComponent cartridge:
-                    if (!cartridge.Spent)
-                    {
-                        SetCartridgeSpent(ent!.Value, cartridge, true);
-                        MuzzleFlash(gunUid, cartridge, worldAngle, user);
-                        Audio.PlayPredicted(gun.SoundGunshotModified, gunUid, user);
-                        Recoil(user, direction, gun.CameraRecoilScalarModified);
-                    }
-                    else
-                    {
-                        userImpulse = false;
-                        Audio.PlayPredicted(gun.SoundEmpty, gunUid, user);
-                    }
-
-                    if (IsClientSide(ent!.Value))
-                        Del(ent.Value);
-
-                    break;
-
                 case CartridgeAmmoComponent cartridge:
                     if (!cartridge.Spent)
                     {
                         SetCartridgeSpent(ent!.Value, cartridge, true);
-                        MuzzleFlash(gunUid, cartridge, worldAngle, user);
-                        Audio.PlayPredicted(gun.SoundGunshotModified, gunUid, user);
-                        Recoil(user, direction, gun.CameraRecoilScalarModified);
+                        MuzzleFlash(gun, cartridge, worldAngle, user);
+                        Audio.PlayPredicted(gun.Comp.SoundGunshotModified, gun, user);
+                        Recoil(user, direction, gun.Comp.CameraRecoilScalarModified);
                         // TODO: Can't predict entity deletions.
                         //if (cartridge.DeleteOnSpawn)
                         //    Del(cartridge.Owner);
@@ -477,7 +463,7 @@ public sealed partial class GunSystem : SharedGunSystem
                     else
                     {
                         userImpulse = false;
-                        Audio.PlayPredicted(gun.SoundEmpty, gunUid, user);
+                        Audio.PlayPredicted(gun.Comp.SoundEmpty, gun, user);
                     }
 
                     if (IsClientSide(ent!.Value))
@@ -485,17 +471,17 @@ public sealed partial class GunSystem : SharedGunSystem
 
                     break;
                 case AmmoComponent newAmmo:
-                    MuzzleFlash(gunUid, newAmmo, worldAngle, user);
-                    Audio.PlayPredicted(gun.SoundGunshotModified, gunUid, user);
-                    Recoil(user, direction, gun.CameraRecoilScalarModified);
+                    MuzzleFlash(gun, newAmmo, worldAngle, user);
+                    Audio.PlayPredicted(gun.Comp.SoundGunshotModified, gun, user);
+                    Recoil(user, direction, gun.Comp.CameraRecoilScalarModified);
                     if (IsClientSide(ent!.Value))
                         Del(ent.Value);
                     else
                         RemoveShootable(ent.Value);
                     break;
-                case HitscanPrototype:
-                    Audio.PlayPredicted(gun.SoundGunshotModified, gunUid, user);
-                    Recoil(user, direction, gun.CameraRecoilScalarModified);
+                case HitscanAmmoComponent:
+                    Audio.PlayPredicted(gun.Comp.SoundGunshotModified, gun, user);
+                    Recoil(user, direction, gun.Comp.CameraRecoilScalarModified);
                     break;
             }
         }
@@ -631,4 +617,7 @@ public sealed partial class GunSystem : SharedGunSystem
         _animPlayer.Stop(gunUid, uidPlayer, "muzzle-flash-light");
         _animPlayer.Play((gunUid, uidPlayer), animTwo, "muzzle-flash-light");
     }
+
+    // TODO: Move RangedDamageSoundComponent to shared so this can be predicted.
+    public override void PlayImpactSound(EntityUid otherEntity, DamageSpecifier? modifiedDamage, SoundSpecifier? weaponSound, bool forceWeaponSound) { }
 }

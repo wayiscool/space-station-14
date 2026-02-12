@@ -1,5 +1,6 @@
 using Robust.Shared.GameStates;
 using Robust.Shared.Prototypes;
+using Content.Shared.DeviceLinking; // Starlight-edit
 
 namespace Content.Shared.Silicons.StationAi;
 
@@ -38,11 +39,32 @@ public sealed partial class StationAiCoreComponent : Component
     [DataField(readOnly: true)]
     public EntProtoId? PhysicalEntityProto = "StationAiHoloLocal";
 
+    /// <summary>
+    /// Name of the container slot that holds the inhabiting AI's mind
+    /// </summary>
     public const string Container = "station_ai_mind_slot";
+
+    /// <summary>
+    /// Name of the container slot that holds the 'brain' used to construct the AI core
+    /// </summary>
+    public const string BrainContainer = "station_ai_brain_slot";
+    
+    // Starlight-start: Linking with ai upload console
+    
+    [DataField, AutoNetworkedField]
+    public EntityUid? LawConsole;
+    
+    /// <summary>
+    /// The machine linking port
+    /// </summary>
+    [DataField]
+    public ProtoId<SourcePortPrototype> LinkingPort = "AiLawConsoleSender";
+    
+    // Starlight-end
 }
 
 /// <summary>
-/// This event is raised on a station AI 'eye' that is being replaced with a new one 
+/// This event is raised on a station AI 'eye' that is being replaced with a new one
 /// </summary>
 /// <param name="NewRemoteEntity">The entity UID of the replacement entity</param>
 [ByRefEvent]

@@ -142,6 +142,12 @@
   - type: Fiber
     fiberMaterial: fibers-latex
   - type: FingerprintMask
+  - type: Armor # Starlight start
+    modifiers:
+      coefficients:
+        Caustic: 0.9
+  - type: ZombificationResistance
+    zombificationResistanceCoefficient: 0.9 # Starlight end
 
 - type: entity
   parent: ClothingHandsButcherable
@@ -156,6 +162,12 @@
   - type: Fiber
     fiberMaterial: fibers-nitrile
   - type: FingerprintMask
+  - type: Armor # Starlight start
+    modifiers:
+      coefficients:
+        Caustic: 0.9
+  - type: ZombificationResistance
+    zombificationResistanceCoefficient: 0.9 # Starlight end
 
 - type: entity
   parent: ClothingHandsButcherable
@@ -207,7 +219,7 @@
   - type: FingerprintMask
 
 - type: entity
-  parent: [ClothingHandsBase, BaseToggleClothing, BaseMajorContraband]
+  parent: [ClothingHandsBase, BaseToggleClothing, BaseHighlyIllegalContraband]
   id: ClothingHandsGlovesSpaceNinja
   name: space ninja gloves
   description: These black nano-enhanced gloves insulate from electricity and provide fire resistance.
@@ -261,7 +273,7 @@
       - type: CriminalRecordsHacker
 
 - type: entity
-  parent: [ ClothingHandsGlovesColorBlack, BaseSecurityEngineeringContraband ]
+  parent: [ ClothingHandsGlovesColorBlack, BaseEngineeringSecurityCommandContraband ] # SL edit: Engi/Sec/Command contra
   id: ClothingHandsGlovesCombat
   name: combat gloves
   description: These tactical gloves are fireproof and shock resistant.
@@ -290,7 +302,7 @@
     fiberColor: fibers-black
 
 - type: entity
-  parent: [ BaseEngineeringSecuritySalvageContraband, ClothingHandsGlovesCombat ] #Starlight salvContra
+  parent: [ BaseEngineeringSecurityCommandSalvageMiningContraband, ClothingHandsGlovesCombat ] # SL edit: Engi/Sec/Command/Salvage/Mining contra
   id: ClothingHandsMercGlovesCombat
   name: mercenary combat gloves
   description: High-quality combat gloves to protect hands from mechanical damage during combat.
@@ -342,9 +354,15 @@
     damageProtection:
       flatReductions:
         Heat: 0 # no protection
+  - type: Tag #SL start
+    tags:
+      - fingerlessinsuls
+  - type: Construction
+    graph: FingerlessInsuls
+    node: fingerless #SL end
 
 - type: entity
-  parent: [ ClothingHandsButcherable, BaseSalvageContraband ] #Starlight salvContra
+  parent: ClothingHandsButcherable
   id: ClothingHandsGlovesMercFingerless
   name: mercenary fingerless gloves
   description: Gloves that may not protect you from finger burns, but will make you cooler.

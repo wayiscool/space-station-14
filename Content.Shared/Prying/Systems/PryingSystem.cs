@@ -100,8 +100,14 @@ public sealed class PryingSystem : EntitySystem
 
         // hand-prying is much slower
         var modifier = CompOrNull<PryingComponent>(user)?.SpeedModifier ?? unpoweredComp.PryModifier;
-        return StartPry(target, user, null, modifier, out id);
+        // Starlight change start: Adds capability for user to pry with "themselves" if they have the pry component, used for mech prying        
+
+        // user is tool if they have a prying component
+        EntityUid? userAsTool = HasComp<PryingComponent>(user) ? user : null;
+
+        return StartPry(target, user, userAsTool, modifier, out id);
     }
+        // Starlight change end
 
     private bool CanPry(EntityUid target, EntityUid user, out string? message, PryingComponent? comp = null, PryUnpoweredComponent? unpoweredComp = null)
     {
@@ -134,7 +140,7 @@ public sealed class PryingSystem : EntitySystem
         var modEv = new GetPryTimeModifierEvent(user);
 
         RaiseLocalEvent(target, ref modEv);
-        var doAfterArgs = new DoAfterArgs(EntityManager, user, TimeSpan.FromSeconds(modEv.BaseTime * modEv.PryTimeModifier / toolModifier), new DoorPryDoAfterEvent(), target, target, tool)
+        var doAfterArgs = new DoAfterArgs(EntityManager, user, modEv.BaseTime * modEv.PryTimeModifier / toolModifier, new DoorPryDoAfterEvent(), target, target, tool)
         {
             BreakOnDamage = true,
             BreakOnMove = true,
@@ -149,6 +155,10 @@ public sealed class PryingSystem : EntitySystem
         {
             _adminLog.Add(LogType.Action, LogImpact.Low, $"{ToPrettyString(user)} is prying {ToPrettyString(target)}");
         }
+        // Starlight Start
+        if (tool != null && TryComp(tool, out PryingComponent? comp) && comp.PlaySoundOnDoafter)
+            _audioSystem.PlayPredicted(comp.UseSound, tool.Value, user);
+        // Starlight End
         return _doAfterSystem.TryStartDoAfter(doAfterArgs, out id);
     }
 
@@ -168,7 +178,8 @@ public sealed class PryingSystem : EntitySystem
             return;
         }
 
-        if (args.Used != null && comp != null)
+        if (args.Used != null && comp != null
+        && !comp.PlaySoundOnDoafter) //Starlight
         {
             _audioSystem.PlayPredicted(comp.UseSound, args.Used.Value, args.User);
         }

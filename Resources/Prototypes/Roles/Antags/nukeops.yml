@@ -6,12 +6,13 @@
   objective: roles-antag-nuclear-operative-objective
   requirements:
   - !type:OverallPlaytimeRequirement
-    time: 86400 # 24h STARLIGHT
+    time: 24h # Starlight
   - !type:DepartmentTimeRequirement
     department: Security
-    time: 21600 # 6h STARLIGHT
+    time: 6h # Starlight
   guides: [ NuclearOperatives ]
   previewStartingGear: SyndicateOperativeGearFull
+  playTimeTracker: AntagNukeops # Starlight
 
 - type: antag
   id: NukeopsMedic
@@ -21,18 +22,19 @@
   objective: roles-antag-nuclear-operative-agent-objective
   requirements:
   - !type:OverallPlaytimeRequirement
-    time: 86400 # 24h STARLIGHT
+    time: 24h # Starlight
   - !type:RoleTimeRequirement
     role: JobChemist
-    time: 21600 # 6h STARLIGHT
+    time: 6h # Starlight
   - !type:RoleTimeRequirement
     role: JobSurgeon
-    time: 10800 # 3h STARLIGHT
+    time: 3h # Starlight
   - !type:DepartmentTimeRequirement
     department: Security
-    time: 10800 # 3h STARLIGHT
+    time: 3h # Starlight
   guides: [ NuclearOperatives ]
   previewStartingGear: SyndicateOperativeMedicFull
+  playTimeTracker: AntagNukeopsMedic # Starlight
 
 - type: antag
   id: NukeopsCommander
@@ -42,16 +44,17 @@
   objective: roles-antag-nuclear-operative-commander-objective
   requirements:
   - !type:OverallPlaytimeRequirement
-    time: 86400 # 24h STARLIGHT
+    time: 24h # Starlight
   - !type:DepartmentTimeRequirement
     department: Security
-    time: 43200 # 12h STARLIGHT
+    time: 12h # Starlight
   - !type:DepartmentTimeRequirement
     department: Command
-    time: 21600 # 6h STARLIGHT
+    time: 6h # Starlight
   # should be changed to nukie playtime when thats tracked (wyci)
   guides: [ NuclearOperatives ]
   previewStartingGear: SyndicateCommanderGearFull
+  playTimeTracker: AntagNukeopsCommander # Starlight
 
 - type: startingGear
   id: SyndicateOperativeGearFullNoUplink
@@ -64,14 +67,14 @@
     gloves: ClothingHandsGlovesCombat
     outerClothing: ClothingOuterHardsuitSyndie
     shoes: ClothingShoesBootsCombatFilled
-    id: SyndiPDA
+    id: SyndiOperativePDA
     pocket2: PlushieCarp
     belt: ClothingBeltMilitaryWebbing
   storage:
     back:
     - WeaponPistolViper
     - PinpointerSyndicateNuclear
-    - DeathAcidifierImplanter
+    - GearAcidifierImplanter # Starlight edit
 
 #Nuclear Operative Gear
 - type: startingGear
@@ -84,7 +87,7 @@
   id: NukeopsOutfit
   name: roles-antag-nuclear-operative-name
   startingGear: SyndicateOperativeGearFullNoUplink
-  icon: "JobIconSyndicate"
+  icon: "JobIconSyndicate" # Starlight - SyndicateOperative -> Syndicate
   equipment:
     head: ClothingHeadHelmetHardsuitSyndie
     neck: ClothingNeckScarfStripedSyndieRed
@@ -94,10 +97,10 @@
   id: SyndicateCommanderGearFull
   parent: SyndicateOperativeGearFull
   equipment:
-    neck: CommanderWhistle #Starlight
+    id: SyndiCommanderPDA
+    neck: CommanderWhistle #Starlight, Whistle renamed
     ears: ClothingHeadsetAltSyndicateCommander #Starlight
     outerClothing: ClothingOuterHardsuitSyndieCommander
-    id: CommanderPDA
   inhand:
   - NukeOpsDeclarationOfWar
 
@@ -105,7 +108,7 @@
   id: NukeopsCommanderOutfit
   name: roles-antag-nuclear-operative-commander-name
   startingGear: SyndicateCommanderGearFull
-  icon: "JobIconSyndicate"
+  icon: "JobIconSyndicate" # Starlight - SyndicateCommander -> Syndicate
   equipment:
     head: ClothingHeadHelmetHardsuitSyndieCommander
     neck: ClothingNeckScarfStripedSyndieGreen
@@ -119,7 +122,7 @@
     outerClothing: ClothingOuterHardsuitSyndieMedic
     ears: ClothingHeadsetAltSyndicateAgent #Starlight
     shoes: ClothingShoesBootsMagSyndie
-    id: SyndiAgentPDA
+    id: SyndiCorpsmanPDA
     belt: ClothingBeltMilitaryWebbingMedFilled
   storage:
     back:
@@ -131,13 +134,13 @@
     - PinpointerSyndicateNuclear
     - HandheldHealthAnalyzer
     - CombatMedipen
-    - DeathAcidifierImplanter
+    - GearAcidifierImplanter # Starlight edit
 
 - type: chameleonOutfit
   id: NukeopsMedicOutfit
   name: roles-antag-nuclear-operative-agent-name
   startingGear: SyndicateOperativeMedicFull
-  icon: "JobIconSyndicate"
+  icon: "JobIconSyndicate" # Starlight - SyndicateCorpsman -> Syndicate
   equipment:
     head: ClothingHeadHelmetHardsuitSyndieMedic
     neck: ClothingNeckScarfStripedLightBlue
