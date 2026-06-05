@@ -12,6 +12,12 @@
     },
     {
       "name": "reinforced_camera_off"
+    },
+    {
+      "name": "reinforced_camera_in_use"
+    },
+    {
+      "name": "reinforced_camera_assembly"
     }
   ]
 }

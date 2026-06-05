@@ -1,0 +1,69 @@
+- type: constructionGraph
+  id: SurveillanceCameraReinforced
+  start: start
+  graph:
+    - node: start
+      edges:
+        - to: assembly
+          steps:
+            - material: Steel
+              amount: 2
+              doAfter: 2.0
+
+    - node: assembly
+      entity: SurveillanceCameraReinforcedAssembly
+      edges:
+        - to: wired
+          steps:
+            - material: Cable
+              amount: 1
+              doAfter: 1
+        - to: start
+          completed:
+            - !type:GivePrototype
+              prototype: SheetSteel1
+              amount: 2
+            - !type:DeleteEntity {}
+          steps:
+            - tool: Welding
+              doAfter: 2
+
+    - node: wired
+      entity: SurveillanceCameraReinforcedAssembly
+      edges:
+        - to: camera_reinforced
+          steps:
+            - tool: Screwing
+              doAfter: 2
+
+    # once a camera is constructed, it will
+    # instead just require wire cutting + welding
+    # to immediately deconstruct
+    - node: camera_reinforced
+      entity: SurveillanceCameraReinforcedConstructed
+      edges:
+        - to: start
+          conditions:
+            - !type:AllWiresCut {}
+            - !type:WirePanel {}
+          completed:
+            - !type:GivePrototype
+              prototype: SheetSteel1
+              amount: 2
+            - !type:DeleteEntity {}
+          steps:
+            - tool: Welding
+              doAfter: 2
+        - to: medSecurityUnfinished
+            conditions:
+              - !type:WirePanel {}
+            steps:
+             - material: Steel
+               amount: 2
+               doAfter: 2
+
+    - node: medSecurityUnfinished
+      actions:
+    - !type:SetWiresPanelSecurity
+      examine: wires-panel-component-on-examine-security-level1
+      wiresAccessible: false

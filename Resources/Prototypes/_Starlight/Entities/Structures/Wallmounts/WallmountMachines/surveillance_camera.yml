@@ -50,8 +50,10 @@
   - type: Clickable
   - type: InteractionOutline
   - type: Construction
-    graph: SurveillanceCamera
-    node: camera
+    graph: SurveillanceCameraReinforced
+    node: camera_reinforced
+  - type: WiresPanelSecurity
+    securityLevel: medSecurityUnfinished  
   - type: Electrified
     enabled: false
     usesApcPower: true
@@ -75,14 +77,14 @@
     sprite: _Starlight/Structures/Wallmounts/camera_reinforced.rsi
     layers:
       - map: [ "enum.SurveillanceCameraVisualsKey.Layer" ]
-        state: camera
+        state: reinforced_camera
         cycle: true
   - type: Appearance
   - type: SurveillanceCameraVisuals
     sprites:
       Active: reinforced_camera
-      Disabled: reinforced_off
-      InUse: camera_in_use
+      Disabled: reinforced_camera_off
+      InUse: reinforced_camera_in_use
   - type: UserInterface
     interfaces:
       enum.SurveillanceCameraSetupUiKey.Camera:
@@ -95,7 +97,7 @@
     thresholds:
       - trigger:
           !type:DamageTrigger
-          damage: 500
+          damage: 700
         behaviors:
           - !type:DoActsBehavior
             acts: [ "Destruction" ]
@@ -103,12 +105,38 @@
             sound:
               collection: MetalBreak
               params:
-                volume: -8
+                volume: 1
   placement:
     mode: SnapgridCenter
     snap:
       - Wallmount
-#
+# Parent end
+
+- type: entity
+  id: SurveillanceCameraReinforcedAssembly
+  name: reinforced camera
+  description: A surveillance camera. Doesn't seem to be watching anybody any time soon. Probably.
+  components:
+    - type: Clickable
+    - type: InteractionOutline
+    - type: Construction
+      graph: SurveillanceCameraReinforced
+      node: assembly
+    - type: WallMount
+    - type: Transform
+      anchored: true
+    - type: Damageable
+      damageContainer: StructuralInorganic
+      damageModifierSet: Metallic
+    - type: Sprite
+      drawdepth: WallMountedItems
+      sprite: _Starlight/Structures/Wallmounts/camera_reinforced.rsi
+      layers:
+        - state: reinforced_camera_assembly
+  placement:
+    mode: SnapgridCenter
+    snap:
+      - Wallmount
 
 - type: entity
   parent: SurveillanceCameraReinforcedBase
