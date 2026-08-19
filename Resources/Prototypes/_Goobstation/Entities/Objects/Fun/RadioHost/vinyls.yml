@@ -766,7 +766,7 @@
   parent: BaseVinylDisc
   id: VinylBeaches
   name: "vinyl: Beaches"
-  description: A slow pace electronic tune. By: Goonstation #SL  Addition
+  description: A slow pace electronic tune. By: aquariofury, Not Tom  #SL  Addition
   components:
   - type: Sprite
     state: default
@@ -798,7 +798,7 @@
   parent: BaseVinylFloaty
   id: VinylFloaty
   name: "vinyl: Floaty"
-  description: A slow pace hypnotic tune. By: Goonstation #SL  Addition
+  description: A slow pace hypnotic tune. By: aquariofury, Not Tom #SL  Addition
   components:
   - type: Vinyl
     song:
@@ -808,7 +808,7 @@
   parent: BaseVinylDisc
   id: VinylGraveyard
   name: "vinyl: Graveyard"
-  description: A slow pace eerie tune. By: Goonstation #SL  Addition
+  description: A slow pace eerie tune. By: aquariofury, Not Tom #SL  Addition
   components:
   - type: Sprite
     state: default
@@ -840,7 +840,7 @@
   parent: BaseVinylDisc
   id: VinylSpaceGardener
   name: "vinyl: Space Gardener"
-  description: A slow pace electronic tune. By: Goonstation #SL  Addition
+  description: A slow pace electronic tune. By: tamakari #SL  Addition
   components:
   - type: Sprite
     state: default
@@ -872,7 +872,7 @@
   parent: BaseVinylAI
   id: VinylLayEggIsTrue
   name: "vinyl: Lay Egg Is True"
-  description: A face pace electronic tune. By: Goonstation #SL  Addition
+  description: A face pace electronic tune. By: WyrdDoe #SL  Addition
   components:
   - type: Vinyl
     song:
@@ -882,7 +882,7 @@
   parent: BaseVinylDisc
   id: VinylMonkeyRiot
   name: "vinyl: Monkey Riot"
-  description: A fast pace high-energy electronic tune. By: Goonstation #SL  Addition
+  description: A fast pace high-energy electronic tune. By: WyrdDoe #SL  Addition
   components:
   - type: Sprite
     state: default
@@ -914,7 +914,7 @@
   parent: BaseVinylDisc
   id: VinylRepose
   name: "vinyl: Repose"
-  description: A slow pace funky tune. By: Goonstation #SL  Addition
+  description: A slow pace funky tune. By: aquariofury, Not Tom #SL  Addition
   components:
   - type: Sprite
     state: default
@@ -1026,7 +1026,7 @@
   parent: BaseVinylDisc
   id: VinylBiodome
   name: "vinyl: Biodome"
-  description: A slow pace eerie tune. By: Goonstation #SL  Addition
+  description: A slow pace eerie tune. By: aquariofury, Not Tom #SL  Addition
   components:
   - type: Sprite
     state: default
