@@ -321,6 +321,39 @@
       controlHomePosition: "320, 150"
       worldHomePosition: "0, 0"
       tiled: false
+    - texture:
+        !type:ImageParallaxTextureSource
+        path: "/Textures/_Starlight/Parallaxes/Ships.png"
+      slowness: 0.99
+      scale: ".6, .6"
+      controlHomePosition: "100, 100"
+      worldHomePosition: "50, 0"
+      scrolling: "0.26, 0"
+      tiled: true
+  layersLQ:
+    - texture:
+        !type:ImageParallaxTextureSource
+        path: "/Textures/Parallaxes/layer1.png"
+      slowness: 0.9959
+      scale: "1, 1"
+    - texture:
+        !type:ImageParallaxTextureSource
+        path: "/Textures/_Starlight/Parallaxes/PlanetColonyLarge.png"
+      slowness: 0.9989
+      scale: "0.68, 0.68"
+      controlHomePosition: "320, 150"
+      worldHomePosition: "0, 0"
+      tiled: false
+    - texture:
+        !type:ImageParallaxTextureSource
+        path: "/Textures/_Starlight/Parallaxes/Ships.png"
+      slowness: 0.99
+      scale: ".6, .6"
+      controlHomePosition: "100, 100"
+      worldHomePosition: "50, 0"
+      scrolling: "0.26, 0"
+      tiled: true
+  layersLQUseHQ: false
 
 # Cosmic Cult
 
