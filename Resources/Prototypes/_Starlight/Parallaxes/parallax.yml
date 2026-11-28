@@ -291,7 +291,7 @@
     - texture:
         !type:ImageParallaxTextureSource
         path: "/Textures/Parallaxes/layer1.png"
-      slowness: 0.9959
+      slowness: 0.9989
       scale: "1, 1"
     - texture:
         !type:GeneratedParallaxTextureSource
